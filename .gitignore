@@ -1,0 +1,8 @@
+# virtualenv — recreate with the commands in README
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# cron's own stdout capture; the script keeps its own readable log
+cards/topup_cron.log

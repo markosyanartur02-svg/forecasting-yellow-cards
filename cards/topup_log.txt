@@ -1,0 +1,27 @@
+2026-09-17 09:12 top-up 2627 (dry run)
+2026-09-17 09:12   2627/E0: no usable source (have 30)
+2026-09-17 09:12   2627/E1: no usable source (have 69)
+2026-09-17 09:13   2627/E2: no usable source (have 60)
+2026-09-17 09:13   2627/E3: no usable source (have 0)
+2026-09-17 09:13   done: 0 updated, 0 unchanged, 0 refused, 4 unavailable
+2026-09-17 09:13   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-17 09:13 top-up 2627 (dry run)
+2026-09-17 09:13   2627/E0: unchanged at 30 rows — archive returned HTTP 503
+2026-09-17 09:14   2627/E1: unchanged at 69 rows — archive returned HTTP 503
+2026-09-17 09:14   2627/E2: unchanged at 60 rows — archive returned HTTP 503
+2026-09-17 09:14   2627/E3: unchanged at 0 rows — archive returned HTTP 503
+2026-09-17 09:14   done: 0 updated, 0 unchanged, 0 refused, 4 unavailable
+2026-09-17 09:14   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-17 09:16 top-up 2627
+2026-09-17 09:16   2627/E0: unchanged at 30 rows — archive@20260914084756
+2026-09-17 09:16   2627/E1: unchanged at 69 rows — archive returned HTTP 503
+2026-09-17 09:17   2627/E2: unchanged at 60 rows — archive returned HTTP 503
+2026-09-17 09:17   2627/E3: unchanged at 0 rows — never captured by the archive
+2026-09-17 09:17   done: 0 updated, 0 unchanged, 0 refused, 4 unavailable
+2026-09-17 09:17   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-17 09:18 top-up 2627
+2026-09-17 09:18   2627/E0: unchanged at 30 rows — archive returned HTTP 503
+2026-09-17 09:19   2627/E2: unchanged at 60 rows — archive returned HTTP 503
+2026-09-17 09:20   2627/E3: unchanged at 0 rows — archive unreachable (ReadTimeout)
+2026-09-17 09:20   done: 0 updated, 1 unchanged, 0 refused, 3 unavailable
+2026-09-17 09:20   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.

@@ -1,0 +1,56 @@
+[
+  {
+    "model": "NBGLM",
+    "features": 37,
+    "trained_on": [
+      "0506",
+      "2324"
+    ],
+    "holdout_seasons": [
+      "2425",
+      "2526"
+    ],
+    "n_holdout": 3140,
+    "results": {
+      "league-season NB": {
+        "nll": 2.078062783499723,
+        "alpha": 0.03404153565911551,
+        "cal_gap": 0.02379028908695166
+      },
+      "NB-GLM": {
+        "nll": 2.0587146650100334,
+        "alpha": 0.01804540544471311,
+        "cal_gap": 0.007894789303591826
+      }
+    },
+    "note": "single look; GBM was rejected in development at -1.5 sigma",
+    "at": "2026-09-17T07:03:21+00:00"
+  },
+  {
+    "model": "NBGLM",
+    "features": 44,
+    "trained_on": [
+      "0506",
+      "2324"
+    ],
+    "holdout_seasons": [
+      "2425",
+      "2526"
+    ],
+    "n_holdout": 3140,
+    "results": {
+      "league-season NB": {
+        "nll": 2.079367493591924,
+        "alpha": 0.04196650489089794,
+        "cal_gap": 0.022836666739493777
+      },
+      "NB-GLM": {
+        "nll": 2.0595377094532594,
+        "alpha": 0.02096018591756551,
+        "cal_gap": 0.008683002874774609
+      }
+    },
+    "note": "single look; GBM was rejected in development at -1.5 sigma",
+    "at": "2026-09-17T08:05:19+00:00"
+  }
+]

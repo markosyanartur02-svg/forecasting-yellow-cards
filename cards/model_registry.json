@@ -1,0 +1,197 @@
+[
+  {
+    "model": "NBGBM",
+    "params": {
+      "objective": "poisson",
+      "learning_rate": 0.03,
+      "num_leaves": 15,
+      "min_data_in_leaf": 200,
+      "feature_fraction": 0.7,
+      "bagging_fraction": 0.8,
+      "bagging_freq": 1,
+      "lambda_l2": 5.0,
+      "verbose": -1,
+      "num_threads": 4
+    },
+    "mean_nll": 2.014373007336017,
+    "vs_glm": {
+      "mean_delta": -0.00250470257611198,
+      "sd": 0.0041543438856550124,
+      "sigma": -1.4768260494982008,
+      "verdict": "NO_EVIDENCE",
+      "folds": 6
+    },
+    "at": "2026-09-17T07:00:54+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "market",
+    "n_features_removed": 7,
+    "mean_nll": 1.9890899182290656,
+    "vs_full": {
+      "cost_of_removing": 0.0021278632496768424,
+      "sd": 0.0018774009041863007,
+      "sigma": 4.5336363585040385,
+      "verdict": "MATTERS",
+      "folds": 16,
+      "worse_in_n_folds": 13
+    },
+    "at": "2026-09-17T07:34:50+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "referee",
+    "n_features_removed": 6,
+    "mean_nll": 1.9979815467358693,
+    "vs_full": {
+      "cost_of_removing": 0.01101949175648044,
+      "sd": 0.006260604883636941,
+      "sigma": 7.04052848649279,
+      "verdict": "MATTERS",
+      "folds": 16,
+      "worse_in_n_folds": 16
+    },
+    "at": "2026-09-17T07:34:54+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "team_form",
+    "n_features_removed": 20,
+    "mean_nll": 1.9966464857018966,
+    "vs_full": {
+      "cost_of_removing": 0.00968443072250788,
+      "sd": 0.003466923973763452,
+      "sigma": 11.173513807394091,
+      "verdict": "MATTERS",
+      "folds": 16,
+      "worse_in_n_folds": 16
+    },
+    "at": "2026-09-17T07:34:58+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "evidence_counts",
+    "n_features_removed": 6,
+    "mean_nll": 1.9869915368109847,
+    "vs_full": {
+      "cost_of_removing": 2.9481831595942753e-05,
+      "sd": 6.910685679843518e-05,
+      "sigma": 1.7064489957592934,
+      "verdict": "NO_EVIDENCE",
+      "folds": 16,
+      "worse_in_n_folds": 12
+    },
+    "at": "2026-09-17T07:35:03+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "context",
+    "n_features_removed": 4,
+    "mean_nll": 1.9889988026731487,
+    "vs_full": {
+      "cost_of_removing": 0.0020367476937597495,
+      "sd": 0.00240476089162486,
+      "sigma": 3.3878589773364958,
+      "verdict": "MATTERS",
+      "folds": 16,
+      "worse_in_n_folds": 13
+    },
+    "at": "2026-09-17T07:35:16+00:00"
+  },
+  {
+    "model": "NBGLM_ref_expanded",
+    "n_features": 54,
+    "mean_nll": 1.9862688239458044,
+    "vs_44_feature": {
+      "mean_delta": 0.0006932310335844155,
+      "sigma": 1.3851006964299089,
+      "verdict": "NO_EVIDENCE"
+    },
+    "at": "2026-09-17T07:37:37+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "market",
+    "n_features_removed": 7,
+    "mean_nll": 1.9816973542996106,
+    "vs_full": {
+      "cost_of_removing": 0.0015503237101172655,
+      "sd": 0.0012565511977333048,
+      "sigma": 5.6539484949860555,
+      "verdict": "MATTERS",
+      "folds": 21,
+      "worse_in_n_folds": 18
+    },
+    "at": "2026-09-17T08:51:12+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "referee",
+    "n_features_removed": 6,
+    "mean_nll": 1.993522709490119,
+    "vs_full": {
+      "cost_of_removing": 0.01337567890062544,
+      "sd": 0.006887431739094763,
+      "sigma": 8.899552598919259,
+      "verdict": "MATTERS",
+      "folds": 21,
+      "worse_in_n_folds": 21
+    },
+    "at": "2026-09-17T08:51:20+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "team_form",
+    "n_features_removed": 20,
+    "mean_nll": 1.9908063494128272,
+    "vs_full": {
+      "cost_of_removing": 0.010659318823333506,
+      "sd": 0.004678556200062257,
+      "sigma": 10.44064306931771,
+      "verdict": "MATTERS",
+      "folds": 21,
+      "worse_in_n_folds": 21
+    },
+    "at": "2026-09-17T08:51:25+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "evidence_counts",
+    "n_features_removed": 6,
+    "mean_nll": 1.9801746128290718,
+    "vs_full": {
+      "cost_of_removing": 2.7582239578348765e-05,
+      "sd": 0.00011585753556310555,
+      "sigma": 1.0909752230604237,
+      "verdict": "NO_EVIDENCE",
+      "folds": 21,
+      "worse_in_n_folds": 13
+    },
+    "at": "2026-09-17T08:51:33+00:00"
+  },
+  {
+    "model": "NBGLM_ablation",
+    "group_removed": "context",
+    "n_features_removed": 4,
+    "mean_nll": 1.9822907399016974,
+    "vs_full": {
+      "cost_of_removing": 0.0021437093122044387,
+      "sd": 0.0027345735990492396,
+      "sigma": 3.592410237038082,
+      "verdict": "MATTERS",
+      "folds": 21,
+      "worse_in_n_folds": 18
+    },
+    "at": "2026-09-17T08:51:41+00:00"
+  },
+  {
+    "model": "NBGLM_shin_devig",
+    "mean_nll": 1.9801537455202056,
+    "vs_proportional": {
+      "mean_delta": 2.0867308866169222e-05,
+      "sigma": 2.4899910023645755,
+      "verdict": "IMPROVED"
+    },
+    "at": "2026-09-17T09:02:57+00:00"
+  }
+]
