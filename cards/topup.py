@@ -172,6 +172,9 @@ def main() -> int:
     log(f"  done: {st['updated']} updated, {st['unchanged']} unchanged, "
         f"{st['refused']} refused, {st['missing']} unavailable")
 
+    log("  NOTE: card counts for the most recent few days may not be filled "
+        "in yet -- football-data publishes results and other stats before "
+        "cards. See loader.flag_unconfirmed_cards.")
     if season in loader.HOLDOUT_SEASONS:
         log(f"  NOTE: {season} is the holdout. Fetching it is not a look — "
             "no model was scored here.")

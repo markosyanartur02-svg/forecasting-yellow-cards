@@ -358,6 +358,40 @@ def load_matches(seasons: list[str] | None = None,
     return m
 
 
+# football-data publishes a match's result and most of its stats promptly, but
+# CARD counts lag by a few days. Until they arrive the row reads 0 yellows --
+# not blank, zero -- while shots, corners and fouls are already correct.
+#
+# Measured on 2026/27: the 0-yellow rate is 2.2% over the season so far, 6.7%
+# across the last 30 matches and 20.0% across the last 10, with mean fouls
+# unchanged at 23.5. The cards are missing, not absent.
+#
+# Cards are this project's TARGET, so a spurious zero is a corrupted label, not
+# a missing feature. It cannot be detected from the row itself: 0 yellows with
+# 20+ fouls is unusual but genuinely happens in 4.9% of settled matches, so any
+# foul-based rule throws away real data. Recency is the only reliable signal.
+CARD_CONFIRMATION_LAG_DAYS = 7
+
+
+def flag_unconfirmed_cards(m: pd.DataFrame,
+                           lag_days: int = CARD_CONFIRMATION_LAG_DAYS
+                           ) -> pd.DataFrame:
+    """Mark matches whose card counts may not have been filled in yet.
+
+    Adds `cards_confirmed`. Anything within `lag_days` of the most recent match
+    in the data is marked False -- not dropped, because for a settled match the
+    zero is real and for a fresh one you may simply want to wait.
+
+    Use it before treating recent card counts as truth, and verify from an
+    official match report when a single match matters.
+    """
+    out = m.copy()
+    frontier = out["date"].max()
+    cutoff = frontier - pd.Timedelta(days=lag_days)
+    out["cards_confirmed"] = out["date"] <= cutoff
+    return out
+
+
 def audit(m: pd.DataFrame) -> None:
     """Print what the loader kept, lost, and could not explain."""
     rep = m.attrs["report"]
@@ -380,6 +414,16 @@ def audit(m: pd.DataFrame) -> None:
               "odds_h", "odds_o25"]:
         print(f"   {c:<9} {m[c].notna().mean():6.2%} populated")
 
+    fl = flag_unconfirmed_cards(m)
+    unc = (~fl.cards_confirmed).sum()
+    if unc:
+        z = fl[~fl.cards_confirmed]
+        print(f"\nWARNING: {unc} matches are within "
+              f"{CARD_CONFIRMATION_LAG_DAYS} days of the data frontier; their "
+              f"card counts may not be filled in yet "
+              f"({(z.yellows==0).mean():.0%} show 0 yellows vs "
+              f"{(fl[fl.cards_confirmed].yellows==0).mean():.0%} for settled "
+              "matches).")
     print(f"\nyellows: mean {m.yellows.mean():.3f}  var {m.yellows.var():.3f}  "
           f"var/mean {m.yellows.var()/m.yellows.mean():.3f}")
     print("per division:")
