@@ -6,3 +6,6 @@ __pycache__/
 
 # cron's own stdout capture; the script keeps its own readable log
 cards/topup_cron.log
+
+# runtime log from the local web app
+cards/app.log
