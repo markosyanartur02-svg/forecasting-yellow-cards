@@ -1,0 +1,74 @@
+{
+  "frozen_at": "2026-09-18T11:13:03+00:00",
+  "fingerprint": "d30beac40c73a847",
+  "reason": "Season 2026/27 forward test. 38-feature NB-GLM as committed in 25453b8. Frozen so the weekly accumulation is one experiment; any spec change restarts the clock.",
+  "spec": {
+    "n_features": 38,
+    "features": [
+      "a_fouls10",
+      "a_fouls20",
+      "a_fouls5",
+      "a_oppyel10",
+      "a_oppyel20",
+      "a_oppyel5",
+      "a_rest_days",
+      "a_yel10",
+      "a_yel20",
+      "a_yel5",
+      "a_yel_away10",
+      "baseline_yellows",
+      "h_fouls10",
+      "h_fouls20",
+      "h_fouls5",
+      "h_oppyel10",
+      "h_oppyel20",
+      "h_oppyel5",
+      "h_rest_days",
+      "h_yel10",
+      "h_yel20",
+      "h_yel5",
+      "h_yel_home10",
+      "match_no_in_season",
+      "mkt_closeness",
+      "mkt_entropy",
+      "mkt_fav_prob",
+      "mkt_home_edge",
+      "mkt_known",
+      "mkt_p_draw",
+      "mkt_p_over25",
+      "ref_known",
+      "ref_n_career",
+      "ref_yel10",
+      "ref_yel30",
+      "ref_yel_per_foul10",
+      "ref_yel_per_foul30",
+      "season_progress"
+    ],
+    "model": "NBGLM",
+    "ridge": 1.0,
+    "devig_default": "shin",
+    "team_windows": [
+      5,
+      10,
+      20
+    ],
+    "ref_windows": [
+      10,
+      30
+    ],
+    "min_team_matches": 3,
+    "min_ref_matches": 5,
+    "min_baseline_matches": 30,
+    "holdout": [
+      "2627"
+    ],
+    "divisions": [
+      "E0",
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "logic_hash": "cdf57391daa58046"
+  },
+  "history": []
+}

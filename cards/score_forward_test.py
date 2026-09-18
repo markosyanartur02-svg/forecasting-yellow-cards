@@ -55,6 +55,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import features
 import loader
 import models
+import freeze as freeze_mod
 from run_holdout import HOLDOUT_LOG, log_look, looks_taken
 
 BOOK = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -105,6 +106,21 @@ def main() -> int:
               "2026/27 holdout so far).\n"
               "Pass --i-am-spending-a-holdout-look to proceed.")
         return 1
+
+    # The accumulating forward test is one experiment only while the model
+    # specification holds still. Checked rather than remembered.
+    print("checking the model is still frozen ...")
+    if not freeze_mod.do_verify():
+        print("\nREFUSING TO SCORE.\n"
+              "The specification has changed since the freeze. Weeks scored\n"
+              "before the change measured a different model, so adding this\n"
+              "week to them measures nothing.\n\n"
+              "If the change was cosmetic -- a docstring, a comment -- re-freeze\n"
+              "with cards/freeze.py --freeze \"reason\" and run again.\n"
+              "If it was real, the honest move is to start a fresh forward test\n"
+              "for the new model and keep the two results apart.")
+        return 1
+    print()
 
     # ---- the model's dispersion, and a baseline fitted WITHOUT these matches
     m = loader.load_matches()                     # development only
