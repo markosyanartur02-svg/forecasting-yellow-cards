@@ -59,6 +59,46 @@ THIN = Side(style="thin", color="BFBFBF")
 BORDER = Border(bottom=THIN)
 
 
+def frozen_predictions(path: str) -> dict:
+    """Predictions already written for fixtures that have since been played.
+
+    A pre-registered test is worthless if re-running the script quietly
+    rewrites predictions for matches whose results now exist. Re-running is
+    legitimate for a fixture still in the future -- a referee appointment
+    published after the first run is new PRE-match information and improves
+    the forecast. It is not legitimate once the match has finished.
+
+    So any fixture dated before today keeps exactly the numbers it was first
+    given, read back from the existing workbook.
+    """
+    if not os.path.exists(path):
+        return {}
+    from openpyxl import load_workbook
+    ws = load_workbook(path, data_only=False)["Predictions"]
+    head = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
+    today = datetime.now().date().isoformat()
+    out = {}
+    for r in range(2, ws.max_row + 1):
+        home = ws.cell(r, head["Home"]).value
+        date = ws.cell(r, head["Date"]).value
+        if not home or home == "Example FC" or not date:
+            continue
+        if str(date) >= today:
+            continue                      # still ahead of us; may be redone
+        away = ws.cell(r, head["Away"]).value
+        out[(home, away)] = {
+            "mu": ws.cell(r, head["Model expects"]).value,
+            "baseline": ws.cell(r, head["League avg"]).value,
+            "over": {ln: ws.cell(r, head[f"P(o{ln})"]).value
+                     for ln in (1.5, 2.5, 3.5, 4.5, 5.5, 6.5)},
+            "p": [ws.cell(r, head[f"P({k})"]).value for k in range(9)],
+            "ref_used": ws.cell(r, head["Referee used"]).value or "",
+            "ref_n": ws.cell(r, head["Ref matches"]).value or 0,
+            "ref_rel": ws.cell(r, head["Ref x avg"]).value,
+        }
+    return out
+
+
 def main() -> int:
     print("fitting model ...", flush=True)
     p = predict_mod.CardPredictor().fit(verbose=True)
@@ -67,9 +107,24 @@ def main() -> int:
         print(f"ABORTING: {len(unresolved)} team names unresolved")
         return 1
 
+    frozen = frozen_predictions(OUT)
+    if frozen:
+        print(f"{len(frozen)} fixture(s) already played -- their original "
+              f"predictions are kept unchanged:")
+        for h, a in frozen:
+            print(f"   {h} v {a}")
     print(f"predicting {len(rows)} fixtures ...", flush=True)
     preds = []
     for r in rows:
+        key = (r["home"], r["away"])
+        if key in frozen:
+            fz = frozen[key]
+            preds.append({**r, **fz,
+                          "ref_rel": (fz["ref_rel"] if fz["ref_rel"] is not None
+                                      else float("nan"))})
+            print(f"   {r['division']} {r['home']} v {r['away']}: "
+                  f"mu {fz['mu']:.2f}  [FROZEN, already played]", flush=True)
+            continue
         res = p.predict(r["home"], r["away"], r["division"], r["date"],
                         referee=r.get("referee"), odds=None)
         cdf = res["cdf"]

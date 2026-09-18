@@ -25,3 +25,10 @@
 2026-09-17 09:20   2627/E3: unchanged at 0 rows — archive unreachable (ReadTimeout)
 2026-09-17 09:20   done: 0 updated, 1 unchanged, 0 refused, 3 unavailable
 2026-09-17 09:20   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-18 09:04 top-up 2627
+2026-09-18 09:04   2627/E0: updated 30 -> 40 rows (live site)
+2026-09-18 09:04   2627/E1: updated 69 -> 83 rows (live site)
+2026-09-18 09:04   2627/E2: updated 60 -> 72 rows (live site)
+2026-09-18 09:04   2627/E3: updated 0 -> 72 rows (live site)
+2026-09-18 09:04   done: 4 updated, 0 unchanged, 0 refused, 0 unavailable
+2026-09-18 09:04   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
