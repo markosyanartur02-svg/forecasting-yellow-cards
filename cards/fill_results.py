@@ -60,7 +60,7 @@ def main() -> int:
     ws = wb["Predictions"]
     h = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
 
-    filled = kept = pending = unplayed = 0
+    filled = kept = pending = unpublished = 0
     for r in range(2, ws.max_row + 1):
         home = ws.cell(r, h["Home"]).value
         away = ws.cell(r, h["Away"]).value
@@ -82,7 +82,7 @@ def main() -> int:
                   "(hand-entered values win)")
             continue
         if len(hit) == 0:
-            unplayed += 1
+            unpublished += 1
             continue
         row = hit.iloc[0]
         if not bool(row.cards_confirmed):
@@ -97,8 +97,12 @@ def main() -> int:
         print(f"  {'fill  ' if a.write else 'would '} {home} v {away}: "
               f"{int(row.yellows)} yellows")
 
+    # "not in the data" is not the same as "not played": football-data runs
+    # several days behind, so a fixture played on Saturday is simply absent on
+    # Monday. Saying "not played yet" invites you to think the weekend never
+    # happened.
     print(f"\n{filled} filled, {kept} kept as-is, {pending} awaiting "
-          f"confirmation, {unplayed} not played yet")
+          f"confirmation, {unpublished} not in the data yet")
     if a.write and filled:
         wb.save(a.file)
         print(f"saved {a.file}")

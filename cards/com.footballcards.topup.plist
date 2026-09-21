@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.footballcards.topup</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd '/Users/arturmarkosyan/PycharmProjects/football-cards' &amp;&amp; .venv/bin/python cards/topup.py</string>
+  </array>
+
+  <!-- Daily, not weekly: football-data publishes on no fixed schedule, and a
+       fetch costs nothing and spends no holdout look. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>9</integer>
+    <key>Minute</key><integer>30</integer>
+  </dict>
+
+  <!-- The reason this replaces cron: cron silently skips a run if the Mac was
+       asleep at the appointed minute. launchd remembers and fires on wake. -->
+  <key>StandardOutPath</key>
+  <string>/Users/arturmarkosyan/PycharmProjects/football-cards/cards/topup_cron.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/arturmarkosyan/PycharmProjects/football-cards/cards/topup_cron.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>
