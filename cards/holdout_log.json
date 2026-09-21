@@ -52,5 +52,17 @@
     },
     "note": "single look; GBM was rejected in development at -1.5 sigma",
     "at": "2026-09-17T08:05:19+00:00"
+  },
+  {
+    "model": "NBGLM forward test",
+    "n": 46,
+    "holdout_definition": [
+      "2627"
+    ],
+    "mean_gain_vs_baseline": 0.00942679913650932,
+    "sigma": 0.38520849120809103,
+    "verdict": "CONSISTENT",
+    "note": "pre-registered forward test on 46 fixtures, 18-20 Sep 2026; predictions fixed before kick-off",
+    "at": "2026-09-21T06:13:53+00:00"
   }
 ]

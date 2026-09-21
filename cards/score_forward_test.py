@@ -179,26 +179,26 @@ def main() -> int:
               f"actual {(y > line).mean():.1%}   "
               f"gap {pred.mean() - (y > line).mean():+.1%}")
 
-    # ---- the split that tests the referee feature directly
-    print("\n  WITH REFEREE vs WITHOUT  (the referee is 47% of model value)")
+    # ---- where the gain came from
     dd = done[ok].copy()
     dd["gain"] = d
-    for label, sel in (("Premier League (referee known)",
-                        dd.referee.notna() & (dd.referee != "not known")),
-                       ("EFL (referee unknown)",
-                        dd.referee.isna() | (dd.referee == "not known"))):
-        g = dd[sel]
+    no_ref = dd.referee.isna() | (dd.referee == "not known")
+    print(f"\n  BY DIVISION   ({int(no_ref.sum())} of {len(dd)} fixtures had no "
+          "referee appointed)")
+    for div in ("E0", "E1", "E2", "E3"):
+        g = dd[dd.division == div]
         if len(g) == 0:
             continue
-        print(f"     {label:<34} n={len(g):>3}  gain {g.gain.mean():+.5f}  "
-              f"better in {(g.gain > 0).sum()}/{len(g)}")
+        print(f"     {loader.DIVISIONS[div]:<16} n={len(g):>3}  "
+              f"gain {g.gain.mean():+.5f}  better in {(g.gain > 0).sum()}/{len(g)}"
+              f"   predicted {g.mu.mean():.2f} actual {g.actual.mean():.2f}")
 
     if a.dry_run:
         print(f"\n{'=' * 66}")
         print("DRY RUN -- no holdout look recorded.")
         return 0
 
-    n_looks = log_look({
+    log_look({
         "model": "NBGLM forward test", "n": int(n),
         "holdout_definition": list(loader.HOLDOUT_SEASONS),
         "mean_gain_vs_baseline": mean, "sigma": float(sigma),
@@ -207,7 +207,9 @@ def main() -> int:
                 "predictions fixed before kick-off",
     })
     print(f"\n{'=' * 66}")
-    print(f"holdout looks spent on 2026/27: {n_looks}")
+    print(f"holdout looks spent on 2026/27: {looks_taken()}")
+    print(f"  (and {looks_taken(current_only=False)} in the project's history, "
+          "counting the retired 2024/25+2025/26 holdout)")
     return 0
 
 
