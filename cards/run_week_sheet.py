@@ -28,12 +28,15 @@ So "Settles on" is a required column, and the BET? formula refuses to give a
 verdict until it says yellow cards only. The market to look for is the one in
 the Chelsea screenshot -- "Yellow Cards", not "Cards" or "Booking Points".
 
-REFEREES ARE MISSING FOR NOW
+REFEREES
 
-The EFL publishes appointments one to three days ahead; as of 21 September its
-latest article still covers 18-20 September. The referee is 48% of the model's
-value, so these predictions are the weaker version. Re-run this script once
-the appointments are out and every row updates.
+Taken from cards/referee_appointments.json when it is there, which
+check_referees.py writes as soon as the EFL publishes them. A fixture with no
+appointment yet falls back to the league average and says so.
+
+The referee is 48% of the model's value, so a sheet built before the
+appointments is the weaker version of the model. Re-run this script once
+check_referees.py reports them and every row updates.
 
 SCORING THIS IS A HOLDOUT LOOK
 
@@ -56,6 +59,7 @@ from openpyxl.utils import get_column_letter
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+import check_referees as refs
 import fetch_results_bbc as bbc
 import freeze as freeze_mod
 import loader
@@ -92,6 +96,13 @@ FIXTURES = [
     ("E3", "2026-09-26", "Tranmere Rovers", "Walsall", None),
     ("E3", "2026-09-26", "York City", "Gillingham", None),
 ]
+
+def appointed_referees() -> dict[tuple[str, str], str]:
+    """(home, away) lowercased -> referee, from the last EFL article seen."""
+    rec = refs.load_state()
+    return {(f["home"].lower(), f["away"].lower()): f["referee"]
+            for f in rec.get("fixtures", []) if f.get("referee")}
+
 
 FONT = "Arial"
 HEAD = PatternFill("solid", fgColor="1F3864")
@@ -176,8 +187,22 @@ def main() -> int:
         m = loader.load_matches(unlock_holdout=True)
         known = sorted(set(m.HomeTeam) | set(m.AwayTeam))
 
+    appointed = appointed_referees()
+    if appointed:
+        rec = refs.load_state()
+        print(f"\nreferee appointments: {len(appointed)} fixtures from "
+              f"{rec.get('slug', '?')} (published {rec.get('published', '?')})")
+    else:
+        print("\nno referee appointments on file yet -- run "
+              "cards/check_referees.py")
+
     rows, unresolved = [], []
+    n_appointed = 0
     for div, date, home, away, ref in FIXTURES:
+        if ref is None:
+            ref = appointed.get((home.lower(), away.lower()))
+            if ref:
+                n_appointed += 1
         h = bbc.resolve(home, known)
         w = bbc.resolve(away, known)
         if not h or not w:
@@ -185,6 +210,7 @@ def main() -> int:
             continue
         rows.append({"division": div, "date": date, "home": h, "away": w,
                      "referee": ref})
+    print(f"{n_appointed} of {len(FIXTURES)} fixtures have a referee")
     if unresolved:
         print(f"\nABORTING: {len(unresolved)} team name(s) unresolved")
         for u in unresolved:
