@@ -30,6 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import loader  # noqa: E402
+import net  # noqa: E402
 
 RAW = loader.RAW_DIR
 LOG = os.path.join(HERE, "topup_log.txt")
@@ -168,6 +169,9 @@ def main() -> int:
         season = f"{start % 100:02d}{(start + 1) % 100:02d}"
 
     log(f"top-up {season}{' (dry run)' if a.dry_run else ''}")
+    if not net.wait_for_network(log=lambda m: log("  " + m)):
+        log("  skipped: no network")
+        return 0
     st = topup(season, dry_run=a.dry_run)
     log(f"  done: {st['updated']} updated, {st['unchanged']} unchanged, "
         f"{st['refused']} refused, {st['missing']} unavailable")

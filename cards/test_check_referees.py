@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import check_referees as cr
 import fetch_results_bbc as bbc
 import fixtures_week as fw
+import net
 
 ARTICLE = ("https://www.efl.com/news/2026/september/17/"
            "referee-appointments--18-20-september-2026/")
@@ -54,6 +55,37 @@ def main() -> int:
           cr.model_name("Matt Gunn-Smith") == "m gunn-smith")
     check("stray markup and spacing are stripped",
           cr.model_name("  Paul   Tierney ") == "p tierney")
+
+    print("\ntest_survives_no_network")
+    # This is the case that actually happened. launchd runs a missed job the
+    # instant the Mac wakes, before wi-fi is up; on 23 and 24 September DNS
+    # failed and the checker died with a traceback, which in a log is
+    # indistinguishable from never having run.
+    real_probes = net.PROBES
+    try:
+        net.PROBES = ("no-such-host.invalid",)
+        check("an unresolvable host is reported offline",
+              net.online("no-such-host.invalid", timeout=2) is False)
+        check("wait_for_network gives up and returns False",
+              net.wait_for_network(timeout_s=2, interval_s=1,
+                                   log=lambda m: None) is False)
+        # main() waits ten minutes for the network in production, which is
+        # right there and useless here, so shorten just that call.
+        argv, real_wait = sys.argv[:], net.wait_for_network
+        sys.argv = ["check_referees.py"]
+        cr.net.wait_for_network = lambda log=print, **kw: real_wait(
+            timeout_s=2, interval_s=1, log=log)
+        try:
+            rc = cr.main()
+        except Exception as e:
+            rc = f"raised {type(e).__name__}"
+        finally:
+            sys.argv = argv
+            cr.net.wait_for_network = real_wait
+        check("the checker exits cleanly instead of raising",
+              rc == 0, f"returned {rc!r}")
+    finally:
+        net.PROBES = real_probes
 
     print("\ntest_cup_articles_are_not_league_rounds")
     arts = [{"slug": "referee-appointments--trophy"},

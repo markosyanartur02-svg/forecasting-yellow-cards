@@ -47,6 +47,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import fetch_results_bbc as bbc
+import net
 
 CATEGORY = "https://www.efl.com/category/match-officials/"
 STATE = os.path.join(HERE, "referee_appointments.json")
@@ -161,7 +162,19 @@ def main() -> int:
                   f"{f['referee_full']}  ->  {f['referee']}")
         return 0
 
-    arts = list_articles(bbc.get(CATEGORY))
+    if not net.wait_for_network(
+            log=lambda m: print(f"{stamp} referees: {m}")):
+        print(f"{stamp} referees: skipped, no network")
+        return 0
+
+    try:
+        arts = list_articles(bbc.get(CATEGORY))
+    except Exception as e:
+        # A scheduled job that dies with a traceback looks identical in the
+        # log to one that never ran. Say what happened and exit cleanly.
+        print(f"{stamp} referees: could not reach the EFL ({type(e).__name__}) "
+              "-- will try again tomorrow")
+        return 0
     league = [x for x in arts if not x["is_cup"]]
     if not league:
         print(f"{stamp} referees: no league appointment article found")

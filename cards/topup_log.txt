@@ -56,3 +56,31 @@
 2026-09-22 06:50   done: 4 updated, 0 unchanged, 0 refused, 0 unavailable
 2026-09-22 06:50   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
 2026-09-22 06:50   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-23 05:42 top-up 2627
+2026-09-23 05:42   2627/E0: unchanged at 50 rows — archive unreachable (ConnectionError)
+2026-09-23 05:42   2627/E1: unchanged at 95 rows — archive unreachable (ConnectionError)
+2026-09-23 05:42   2627/E2: unchanged at 83 rows — archive unreachable (ConnectionError)
+2026-09-23 05:42   2627/E3: unchanged at 84 rows — archive unreachable (ConnectionError)
+2026-09-23 05:42   done: 0 updated, 0 unchanged, 0 refused, 4 unavailable
+2026-09-23 05:42   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-23 05:42   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-24 05:33 top-up 2627
+2026-09-24 05:33   2627/E0: unchanged at 50 rows — archive unreachable (ConnectionError)
+2026-09-24 05:33   2627/E1: unchanged at 95 rows — archive unreachable (ConnectionError)
+2026-09-24 05:33   2627/E2: unchanged at 83 rows — archive unreachable (ConnectionError)
+2026-09-24 05:33   2627/E3: unchanged at 84 rows — archive unreachable (ConnectionError)
+2026-09-24 05:33   done: 0 updated, 0 unchanged, 0 refused, 4 unavailable
+2026-09-24 05:33   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-24 05:33   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-24 12:19 top-up 2627
+2026-09-24 12:20   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-09-24 12:20   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-24 12:20   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-24 12:20 top-up 2627 (dry run)
+2026-09-24 12:20   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-09-24 12:20   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-24 12:20   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-24 12:31 top-up 2627
+2026-09-24 12:32   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-09-24 12:32   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-24 12:32   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
