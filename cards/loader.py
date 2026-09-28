@@ -370,25 +370,39 @@ def load_matches(seasons: list[str] | None = None,
 # a missing feature. It cannot be detected from the row itself: 0 yellows with
 # 20+ fouls is unusual but genuinely happens in 4.9% of settled matches, so any
 # foul-based rule throws away real data. Recency is the only reliable signal.
-CARD_CONFIRMATION_LAG_DAYS = 7
+CARD_CONFIRMATION_LAG_DAYS = 10
 
 
 def flag_unconfirmed_cards(m: pd.DataFrame,
-                           lag_days: int = CARD_CONFIRMATION_LAG_DAYS
-                           ) -> pd.DataFrame:
+                           lag_days: int = CARD_CONFIRMATION_LAG_DAYS,
+                           asof: pd.Timestamp | None = None) -> pd.DataFrame:
     """Mark matches whose card counts may not have been filled in yet.
 
-    Adds `cards_confirmed`. Anything within `lag_days` of the most recent match
-    in the data is marked False -- not dropped, because for a settled match the
-    zero is real and for a fresh one you may simply want to wait.
+    Adds `cards_confirmed`. Not dropped, because for a settled match a zero is
+    real and for a fresh one you may simply want to wait.
 
-    Use it before treating recent card counts as truth, and verify from an
-    official match report when a single match matters.
+    MEASURED FROM TODAY, NOT FROM THE NEWEST MATCH IN THE DATA
+
+    This used to ask whether a match was `lag_days` behind the data frontier.
+    That tracks elapsed time only while fixtures keep arriving. Across the
+    September 2026 international break it stopped: the last matches were
+    played on the 26th, the next were not until 10 October, so the frontier
+    froze and matches played on 20 September would not have counted as
+    confirmed until the middle of October -- three weeks after the fact, for
+    rows that were demonstrably complete.
+
+    Demonstrably, because two independent sources agreed on all six of them,
+    fouls included. What the rule is actually trying to measure is how long
+    football-data has had to fill the row in, and that is elapsed time.
+
+    The default is 10 days rather than the old 7 to keep the same strictness
+    this rule had in normal weeks: football-data usually runs 3 to 4 days
+    behind, so "7 days behind the frontier" was about 10 days behind today.
+    This is a faithful translation of the old behaviour, not a loosening.
     """
     out = m.copy()
-    frontier = out["date"].max()
-    cutoff = frontier - pd.Timedelta(days=lag_days)
-    out["cards_confirmed"] = out["date"] <= cutoff
+    now = pd.Timestamp.today().normalize() if asof is None else pd.Timestamp(asof)
+    out["cards_confirmed"] = out["date"] <= now - pd.Timedelta(days=lag_days)
     return out
 
 
