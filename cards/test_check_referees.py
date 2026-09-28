@@ -29,6 +29,16 @@ import net
 
 ARTICLE = ("https://www.efl.com/news/2026/september/17/"
            "referee-appointments--18-20-september-2026/")
+# The format that cost a week: date in an <h3>, competition in a
+# <p><strong>, fixtures as <p>...<br>NAME<br>. Parsed fine except that every
+# fixture came out with no division, so the filter that keeps league fixtures
+# discarded all fourteen and the watcher reported "still waiting" on the day
+# the appointments were published.
+ARTICLE_STRONG = ("https://www.efl.com/news/2026/september/25/"
+                  "referee-appointments--26-september/")
+# A cup round: parses, but must yield no league fixtures.
+ARTICLE_CUP = ("https://www.efl.com/news/2026/september/21/"
+               "referee-appointments--trophy/")
 
 PASS = FAIL = SKIP = 0
 
@@ -126,6 +136,33 @@ def main() -> int:
               len(set(truth) - set(parsed)) == 10,
               f"{len(set(truth) - set(parsed))} hand-entered fixtures not in "
               "the article")
+
+    print("\ntest_reads_the_other_two_layouts")
+    try:
+        fx = cr.parse_article(bbc.get(ARTICLE_STRONG))
+        div = [f for f in fx if f["division"]]
+        check("competition in a <p><strong> is still recognised",
+              len(div) == 14, f"{len(div)} of {len(fx)} fixtures got a division")
+        check("divisions are League One and League Two",
+              sorted({f["division"] for f in div}) == ["E2", "E3"],
+              f"{sorted({f['division'] for f in div})}")
+        by = {(f["home"], f["away"]): f["referee"] for f in div}
+        check("a known fixture has the right referee",
+              by.get(("Cambridge United", "AFC Wimbledon")) == "b toner",
+              f"{by.get(('Cambridge United', 'AFC Wimbledon'))!r}")
+        check("no fixture swallowed the page header as a team name",
+              all(len(f["home"]) <= 40 and "window." not in f["home"]
+                  for f in fx),
+              f"longest home name: {max(len(f['home']) for f in fx)}")
+
+        cup = cr.parse_article(bbc.get(ARTICLE_CUP))
+        check("a cup round parses but yields no league fixtures",
+              len(cup) > 0 and not [f for f in cup if f["division"]],
+              f"{len(cup)} fixtures, "
+              f"{len([f for f in cup if f['division']])} with a division")
+    except Exception as e:
+        SKIP += 1
+        print(f"  [SKIP] EFL unreachable: {e}")
 
     print("\n" + "-" * 62)
     print(f"{PASS}/{PASS + FAIL} checks passed"

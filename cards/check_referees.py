@@ -11,17 +11,28 @@ The referee is 48% of the model's value, so a week's predictions made before
 the appointments are the weaker version of the model. Knowing the hour they
 land is worth a daily HTTP request.
 
-TWO FORMATS, AND WHY BOTH ARE PARSED
+THREE FORMATS, BECAUSE THE EFL USES THREE
 
-League articles put the fixture in an <h4> and the officials in a <p>:
-
+    <h2>Friday, 18 September 2026</h2>          date
+    <h3>Sky Bet Championship</h3>               competition
     <h4>Bristol City v Watford (20:00)</h4>
-    <p>Referee: Oliver Langford Assistants: ... Fourth Official: ...</p>
+    <p>Referee: Oliver Langford Assistants: ...</p>
 
-Cup articles (EFL Trophy, Carabao) use a flat paragraph with <br> and the
-referee in capitals. Both are read, and the competition heading above each
-block decides the division, so a Trophy article cannot be mistaken for a
-League Two round.
+    <h3>Saturday, 26 September 2026</h3>        date -- in h3 this time
+    <p><strong>Sky Bet League One</strong></p>  competition -- in a p
+    <p>Cambridge United v AFC Wimbledon (15:00)<br />BEN TONER<br />...
+
+The second shape cost a week. The 26 September appointments parsed fine --
+all fourteen fixtures, all fourteen referees -- but the competition was in a
+<p><strong> rather than an <h3>, so every fixture came out with no division
+and the filter that keeps only league fixtures threw all of them away. The
+job reported "0 fixtures, still waiting" and never raised the alert, on a day
+when the appointments were sitting right there.
+
+So headings are no longer trusted to mean what their tag says. Every heading
+and every bold paragraph is collected as a marker and classified by its TEXT:
+a competition if it names one, otherwise a date. That reads all three shapes
+and does not care which tag the EFL picks next.
 
 The content is inside the page's Nuxt payload rather than its rendered body,
 so this reads the raw HTML rather than stripped text.
@@ -62,14 +73,28 @@ COMPETITIONS = {
 CUPS = ("trophy", "carabao", "play-off", "playoff", "laws-of-the-game", "laws")
 
 LINK = re.compile(r'"(/news/(\d{4})/([a-z]+)/(\d{2})/([a-z0-9\-]*referee[a-z0-9\-]*)/)"')
-H2 = re.compile(r"<h2[^>]*>(.*?)</h2>", re.S)
-H3 = re.compile(r"<h3[^>]*>(.*?)</h3>", re.S)
+
+# Any heading, or any bold paragraph, is a candidate marker. What it MEANS is
+# decided by its text, not by its tag -- see the note above.
+MARKER = re.compile(
+    r"<h[1-4][^>]*>(.*?)</h[1-4]>|<p[^>]*>\s*<strong>(.*?)</strong>", re.S)
+
+# Team names never contain a tag, a newline or a backslash. Saying so stops a
+# capture running backwards across the whole page: without it the first
+# fixture on a page swallowed the entire site header as its home team.
+NAME = r"[^<>\\\n]{2,40}?"
+
 FIXTURE_H4 = re.compile(
-    r"<h4[^>]*>\s*(.+?)\s+v\s+(.+?)\s*\((\d{1,2}[:.]\d{2})\)\s*</h4>"
+    r"<h4[^>]*>\s*(" + NAME + r")\s+v\s+(" + NAME + r")\s*"
+    r"\((\d{1,2}[:.]\d{2})\)\s*</h4>"
     r".{0,12}?<p[^>]*>\s*Referee:\s*(.+?)\s+Assistants?:", re.S | re.I)
 FIXTURE_BR = re.compile(
-    r"<p[^>]*>\s*(.+?)\s+v\s+(.+?)\s*\((\d{1,2}[:.]\d{2})\)\s*<br\s*/?>"
+    r"<p[^>]*>\s*(" + NAME + r")\s+v\s+(" + NAME + r")\s*"
+    r"\((\d{1,2}[:.]\d{2})\)\s*<br\s*/?>"
     r"\s*([A-Z][A-Z '&.\-]{3,40}?)\s*<br", re.S)
+
+MONTHS = ("january", "february", "march", "april", "may", "june", "july",
+          "august", "september", "october", "november", "december")
 
 
 def clean(s: str) -> str:
@@ -101,13 +126,25 @@ def list_articles(raw: str) -> list[dict]:
     return out
 
 
+def classify(text: str) -> tuple[str, str] | None:
+    """A marker's meaning comes from its words, not from its tag."""
+    low = text.lower()
+    for needle in COMPETITIONS:
+        if needle in low:
+            return ("comp", text)
+    if any(mon in low for mon in MONTHS):
+        return ("date", text)
+    return None
+
+
 def parse_article(raw: str) -> list[dict]:
     """Fixtures with date, competition and referee, in document order."""
     marks = []
-    for m in H2.finditer(raw):
-        marks.append((m.start(), "date", clean(m.group(1))))
-    for m in H3.finditer(raw):
-        marks.append((m.start(), "comp", clean(m.group(1))))
+    for m in MARKER.finditer(raw):
+        text = clean(m.group(1) if m.group(1) is not None else m.group(2))
+        got = classify(text)
+        if got:
+            marks.append((m.start(), got[0], got[1]))
     for pat, kind in ((FIXTURE_H4, "h4"), (FIXTURE_BR, "br")):
         for m in pat.finditer(raw):
             marks.append((m.start(), "fixture",
@@ -148,6 +185,9 @@ def load_state() -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--verbose", action="store_true")
+    ap.add_argument("--refresh", action="store_true",
+                    help="re-parse the newest article even if it was already "
+                         "seen; use after fixing the parser")
     ap.add_argument("--url", help="parse this article instead of looking one up")
     a = ap.parse_args()
 
@@ -182,7 +222,7 @@ def main() -> int:
     newest = league[0]
 
     state = load_state()
-    if state.get("url") == newest["url"]:
+    if state.get("url") == newest["url"] and not a.refresh:
         print(f"{stamp} referees: nothing new "
               f"(latest is still '{newest['slug']}')")
         return 0

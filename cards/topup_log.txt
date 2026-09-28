@@ -84,3 +84,35 @@
 2026-09-24 12:32   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
 2026-09-24 12:32   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
 2026-09-24 12:32   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-25 05:41 top-up 2627
+2026-09-25 05:41   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-09-25 05:45   network came up after about 47s
+2026-09-25 05:47   2627/E2: unchanged at 83 rows — archive unreachable (ConnectionError)
+2026-09-25 05:47   2627/E3: unchanged at 84 rows — archive unreachable (ConnectionError)
+2026-09-25 05:47   done: 0 updated, 2 unchanged, 0 refused, 2 unavailable
+2026-09-25 05:47   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-25 05:47   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-26 05:31 top-up 2627
+2026-09-26 05:32   2627/E0: unchanged at 50 rows — archive unreachable (ReadTimeout)
+2026-09-26 05:51   2627/E1: unchanged at 95 rows — capture 20260921074012 unreachable (ReadTimeout)
+2026-09-26 05:52   2627/E2: REFUSED — source has 60 rows, we already have 83. Keeping ours.
+2026-09-26 06:11   2627/E3: unchanged at 84 rows — archive returned HTTP 503
+2026-09-26 06:11   done: 0 updated, 0 unchanged, 1 refused, 3 unavailable
+2026-09-26 06:11   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-26 06:11   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-27 05:34 top-up 2627
+2026-09-27 06:25   2627/E0: unchanged at 50 rows — capture 20260921074959 unreachable (ReadTimeout)
+2026-09-27 06:43   2627/E1: unchanged at 95 rows — archive unreachable (ConnectionError)
+2026-09-27 07:23   2627/E2: unchanged at 83 rows — archive unreachable (ReadTimeout)
+2026-09-27 07:24   2627/E3: unchanged at 84 rows — never captured by the archive
+2026-09-27 07:24   done: 0 updated, 0 unchanged, 0 refused, 4 unavailable
+2026-09-27 07:24   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-27 07:24   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-09-28 05:34 top-up 2627
+2026-09-28 05:34   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-09-28 05:41   network came up after about 60s
+2026-09-28 05:45   2627/E2: REFUSED — source has 60 rows, we already have 83. Keeping ours.
+2026-09-28 05:45   2627/E3: updated 84 -> 94 rows (live site)
+2026-09-28 05:45   done: 1 updated, 2 unchanged, 1 refused, 0 unavailable
+2026-09-28 05:45   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-09-28 05:45   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.

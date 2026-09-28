@@ -38,6 +38,22 @@ The referee is 48% of the model's value, so a sheet built before the
 appointments is the weaker version of the model. Re-run this script once
 check_referees.py reports them and every row updates.
 
+ALREADY-PLAYED FIXTURES ARE NEVER REWRITTEN
+
+Re-running this is legitimate while a fixture is still ahead: a referee
+appointment published after the first run is new PRE-match information and
+genuinely improves the forecast. It stops being legitimate the moment the
+match kicks off, because the model refits on everything known so far and
+would quietly produce a prediction informed by the result.
+
+So a row dated before today keeps exactly the cells it already had -- its
+prediction, and any prices you had written into it.
+
+This guard exists because it was needed. The 26 September appointments were
+published the day before the round and the watcher failed to notice, so that
+sheet went into the weekend without referees. Re-running afterwards to "fix"
+it would have produced numbers that look like forecasts and are not.
+
 SCORING THIS IS A HOLDOUT LOOK
 
 2026/27 is the holdout. Predicting costs nothing, but reading the results back
@@ -96,6 +112,34 @@ FIXTURES = [
     ("E3", "2026-09-26", "Tranmere Rovers", "Walsall", None),
     ("E3", "2026-09-26", "York City", "Gillingham", None),
 ]
+
+def played_rows(path: str, sheet: str) -> dict[tuple[str, str, str], list]:
+    """Whole rows for fixtures dated before today, kept verbatim."""
+    if not os.path.exists(path):
+        return {}
+    wb = load_workbook(path, data_only=False)
+    if sheet not in wb.sheetnames:
+        return {}
+    ws = wb[sheet]
+    head = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
+    for need in ("Date", "Home", "Away"):
+        if need not in head:
+            return {}
+    today = datetime.now().date().isoformat()
+    out = {}
+    for r in range(2, ws.max_row + 1):
+        date = ws.cell(r, head["Date"]).value
+        home = ws.cell(r, head["Home"]).value
+        away = ws.cell(r, head["Away"]).value
+        if not date or not home or not away:
+            continue
+        if str(date) >= today:
+            continue
+        out[(str(date), str(home), str(away))] = [
+            (ws.cell(1, c).value, ws.cell(r, c).value)
+            for c in range(1, ws.max_column + 1)]
+    return out
+
 
 def appointed_referees() -> dict[tuple[str, str], str]:
     """(home, away) lowercased -> referee, from the last EFL article seen."""
@@ -248,6 +292,12 @@ def main() -> int:
 
 
 def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
+    frozen = played_rows(path, sheet)
+    if frozen:
+        print(f"\n{len(frozen)} fixture(s) have already been played -- their "
+              "existing rows are kept exactly as they are:")
+        for d, h, a in sorted(frozen):
+            print(f"   {d} {h} v {a}")
     wb = load_workbook(path)
     if sheet in wb.sheetnames:
         del wb[sheet]
@@ -271,6 +321,22 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
     first_row = 2
     for n, q in enumerate(preds):
         i = first_row + n
+        keep = frozen.get((q["date"], q["home"], q["away"]))
+        if keep:
+            for name, value in keep:
+                if name in C:
+                    ws.cell(i, C[name], value)
+            for name, _, kind in cols:
+                cell = ws.cell(i, C[name])
+                cell.font = Font(FONT, size=9)
+                cell.border = BORDER
+                if kind in FMT:
+                    cell.number_format = FMT[kind]
+                if kind == "fill":
+                    cell.fill = FILLIN
+                elif kind.startswith("calc"):
+                    cell.fill = CALC
+            continue
         put = lambda name, v: ws.cell(i, C[name], v)
         put("Date", q["date"])
         put("Div", q["division"])
