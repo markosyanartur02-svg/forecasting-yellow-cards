@@ -1,20 +1,16 @@
 """Add a sheet of upcoming fixtures, with the betting arithmetic wired up.
 
-    .venv/bin/python cards/run_week_sheet.py            # write the sheet
-    .venv/bin/python cards/run_week_sheet.py --dry-run  # print, write nothing
+    .venv/bin/python cards/run_week_sheet.py --from 2026-10-03 --to 2026-10-03
+    .venv/bin/python cards/run_week_sheet.py --from 2026-10-09 --to 2026-10-12
+    .venv/bin/python cards/run_week_sheet.py --dry-run --from ... --to ...
+
+Fixtures come from the BBC feed for the dates given, PreEvent only, so a
+postponed match never reaches the sheet. The sheet is named for the range
+unless --sheet says otherwise, and re-running the same range updates that
+sheet in place rather than making another.
 
 Adds a new sheet to forward_test_2026-09-18.xlsx rather than a new file, so
 one workbook holds the whole season's running record.
-
-THIS WEEK IS SMALL, AND NOT BECAUSE ANYTHING BROKE
-
-26 September begins a two-weekend international break. There are no Premier
-League or Championship fixtures until 10 October, and seven League One and
-League Two matches are postponed for clubs losing players. That leaves
-fourteen fixtures, all in tiers three and four.
-
-Fourteen matches is a very small sample. It is fine for practising the
-workflow and useless as evidence about the model.
 
 THE UNITS TRAP, WHICH THIS SHEET GUARDS AGAINST
 
@@ -63,6 +59,7 @@ is a look and should be logged like any other.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import os
 import sys
 from datetime import datetime, timezone
@@ -82,36 +79,30 @@ import loader
 import predict as predict_mod
 
 BOOK = os.path.join(os.path.dirname(HERE), "forward_test_2026-09-18.xlsx")
-SHEET = "Week 26 Sep"
 STAKE = 100.0
 EDGE_THRESHOLD = 0.05
 LINES = (1.5, 2.5, 3.5, 4.5, 5.5, 6.5)
 
-# Fixtures from the BBC fixtures feed, read 2026-09-21, PreEvent only.
-# Names as BBC writes them; resolved onto football-data's spellings below.
-#
-# Postponed that day and therefore absent: Bradford City v Barnsley, MK Dons
-# v Bromley, Mansfield Town v Leyton Orient, Notts County v Blackpool,
-# Stevenage v Sheffield Wednesday (all E2), Crawley Town v Barnet and Port
-# Vale v Northampton Town (E3).
-#
-# Referee: fill in when the EFL publishes appointments, then re-run.
-FIXTURES = [
-    ("E2", "2026-09-26", "Cambridge United", "AFC Wimbledon", None),
-    ("E2", "2026-09-26", "Plymouth Argyle", "Burton Albion", None),
-    ("E2", "2026-09-26", "Stockport County", "Peterborough United", None),
-    ("E2", "2026-09-26", "Wycombe Wanderers", "Reading", None),
-    ("E3", "2026-09-26", "Bristol Rovers", "Exeter City", None),
-    ("E3", "2026-09-26", "Cheltenham Town", "Chesterfield", None),
-    ("E3", "2026-09-26", "Fleetwood Town", "Rochdale", None),
-    ("E3", "2026-09-26", "Newport County", "Grimsby Town", None),
-    ("E3", "2026-09-26", "Oldham Athletic", "Salford City", None),
-    ("E3", "2026-09-26", "Rotherham United", "Crewe Alexandra", None),
-    ("E3", "2026-09-26", "Shrewsbury Town", "Colchester United", None),
-    ("E3", "2026-09-26", "Swindon Town", "Accrington Stanley", None),
-    ("E3", "2026-09-26", "Tranmere Rovers", "Walsall", None),
-    ("E3", "2026-09-26", "York City", "Gillingham", None),
-]
+def collect_fixtures(start: dt.date, end: dt.date) -> tuple[list, list]:
+    """(playable fixtures, postponed ones) across the four divisions."""
+    today = dt.date.today()
+    live, off = [], []
+    d = start
+    while d <= end:
+        for slug in bbc.TOURNAMENTS:
+            for g in bbc.fixtures_on(d, slug, today):
+                row = (g["division"], g["date"], g["bbc_home"], g["bbc_away"],
+                       None)
+                (off if g["status"] == "Postponed" else live).append(row)
+        d += dt.timedelta(days=1)
+    live.sort(key=lambda r: (r[1], r[0], r[2]))
+    return live, off
+
+
+def sheet_name(start: dt.date, end: dt.date) -> str:
+    if start == end:
+        return f"Week {start.strftime('%-d %b')}"
+    return f"Week {start.strftime('%-d')}-{end.strftime('%-d %b')}"
 
 def played_rows(path: str, sheet: str) -> dict[tuple[str, str, str], list]:
     """Whole rows for fixtures dated before today, kept verbatim."""
@@ -211,8 +202,13 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--file", default=BOOK)
-    ap.add_argument("--sheet", default=SHEET)
+    ap.add_argument("--sheet", default=None)
+    ap.add_argument("--from", dest="start", required=True)
+    ap.add_argument("--to", dest="end", required=True)
     a = ap.parse_args()
+    start = dt.date.fromisoformat(a.start)
+    end = dt.date.fromisoformat(a.end)
+    sheet = a.sheet or sheet_name(start, end)
 
     print("checking the model is still frozen ...")
     if not freeze_mod.do_verify():
@@ -221,6 +217,15 @@ def main() -> int:
               "measuring. Re-freeze if the change was cosmetic.")
         return 1
     fp = freeze_mod.load_freeze()["fingerprint"]
+
+    print(f"\nfixtures for {start} .. {end} ...", flush=True)
+    FIXTURES, postponed = collect_fixtures(start, end)
+    if not FIXTURES:
+        print("no playable fixtures in that range.")
+        return 1
+    print(f"  {len(FIXTURES)} playable, {len(postponed)} postponed")
+    for div, date, h, aw, _ in postponed:
+        print(f"     POSTPONED  {div} {h} v {aw} ({date})")
 
     print("\nfitting model ...", flush=True)
     p = predict_mod.CardPredictor().fit(verbose=True)
@@ -287,7 +292,7 @@ def main() -> int:
         print("\ndry run -- nothing written")
         return 0
 
-    write(a.file, a.sheet, preds, fp)
+    write(a.file, sheet, preds, fp)
     return 0
 
 
@@ -450,6 +455,8 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
             c2.number_format = fmt
 
     note_row = s + len(summary) + 2
+    played = sum(1 for p_ in preds
+                 if p_["date"] < dt.date.today().isoformat())
     notes = [
         "HOW TO USE THIS SHEET",
         "",
@@ -479,21 +486,18 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
         "5. Stake is EUR 100 a bet. Change the column if you want; the P/L "
         "follows it.",
         "",
-        "WHAT THIS WEEK IS AND IS NOT",
+        "WHAT THIS SHEET IS AND IS NOT",
         "",
-        "Fourteen fixtures, League One and League Two only -- 26 September "
-        "starts a two-weekend international break, and seven more EFL matches "
-        "are postponed. No Premier League or Championship football until "
-        "10 October.",
+        f"{len(preds)} fixtures. A sample this size tells you nothing about "
+        "whether the model beats a bookmaker -- a verdict on profitability "
+        "needs thousands of bets. Treat a single week as practice for the "
+        "workflow.",
         "",
-        "Fourteen matches is far too few to tell you anything about whether "
-        "the model beats a bookmaker. Treat this as practice for the workflow. "
-        "A verdict on profitability needs thousands of bets.",
-        "",
-        "Referees are not in yet. The EFL publishes appointments one to three "
-        "days ahead, and the referee is 48% of the model's value -- so these "
-        "numbers are the weaker version of the model. Re-run "
-        "cards/run_week_sheet.py once the appointments are out.",
+        "The referee is 48% of the model's value. If the Referee column says "
+        "'not known', the EFL has not published appointments yet (they come "
+        "one to three days ahead) and these are the weaker version of the "
+        "model. Re-run run_week_sheet.py for the same dates once they are out "
+        "and every unplayed row updates.",
         "",
         f"Model fingerprint {fingerprint}, frozen for the season.",
         "Scoring these results against the model is a holdout look.",
