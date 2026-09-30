@@ -137,6 +137,24 @@ def main() -> int:
               f"{len(set(truth) - set(parsed))} hand-entered fixtures not in "
               "the article")
 
+    print("\ntest_pending_comes_from_the_workbook")
+    # This coupling has broken twice. It used to read another module's
+    # FIXTURES constant; when that module moved to date ranges the constant
+    # vanished, and the watcher compared 31 published appointments against an
+    # empty list and reported "still waiting". The workbook is what actually
+    # knows which fixtures are pending.
+    pend = cr.pending_fixtures()
+    check("pending fixtures are read without importing run_week_sheet",
+          isinstance(pend, set), f"{type(pend).__name__}")
+    check("they are (home, away) pairs of plain strings",
+          all(isinstance(x, tuple) and len(x) == 2
+              and all(isinstance(n, str) for n in x) for x in pend),
+          f"{len(pend)} pending")
+    import run_week_sheet as rws
+    check("run_week_sheet no longer exposes a FIXTURES constant, and that is "
+          "no longer fatal",
+          not hasattr(rws, "FIXTURES"))
+
     print("\ntest_reads_the_other_two_layouts")
     try:
         fx = cr.parse_article(bbc.get(ARTICLE_STRONG))

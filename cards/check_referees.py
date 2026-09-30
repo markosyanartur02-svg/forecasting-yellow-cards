@@ -37,6 +37,20 @@ and does not care which tag the EFL picks next.
 The content is inside the page's Nuxt payload rather than its rendered body,
 so this reads the raw HTML rather than stripped text.
 
+WHAT COUNTS AS PENDING
+
+The fixtures still waiting for a referee are read from the workbook itself --
+every "Week ..." sheet, every row dated today or later whose Referee column
+says "not known". Not from another module's constant.
+
+That coupling has now failed twice. First the parser dropped a layout and
+reported zero fixtures; then run_week_sheet stopped having a FIXTURES list at
+all when it moved to date ranges, and this asked an empty list whether it
+contained the 31 appointments that had just been published. Both times the
+answer was "still waiting" on a day when the referees were sitting there.
+
+The workbook is the thing that actually knows what is pending, so ask it.
+
 VALIDATED AGAINST KNOWN GROUND TRUTH
 
 The 18-20 September article is parsed and checked against the 45 referees that
@@ -59,6 +73,8 @@ sys.path.insert(0, HERE)
 
 import fetch_results_bbc as bbc
 import net
+
+BOOK = os.path.join(os.path.dirname(HERE), "forward_test_2026-09-18.xlsx")
 
 CATEGORY = "https://www.efl.com/category/match-officials/"
 STATE = os.path.join(HERE, "referee_appointments.json")
@@ -175,6 +191,37 @@ def parse_article(raw: str) -> list[dict]:
     return out
 
 
+def pending_fixtures(path: str = BOOK) -> set:
+    """(home, away) in football-data spelling, not yet played, no referee."""
+    from datetime import date
+    from openpyxl import load_workbook
+    if not os.path.exists(path):
+        return set()
+    wb = load_workbook(path, data_only=True)
+    today = date.today().isoformat()
+    out = set()
+    for name in wb.sheetnames:
+        if not name.startswith("Week"):
+            continue
+        ws = wb[name]
+        h = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
+        if not all(k in h for k in ("Date", "Home", "Away", "Referee")):
+            continue
+        for r in range(2, ws.max_row + 1):
+            d = ws.cell(r, h["Date"]).value
+            home = ws.cell(r, h["Home"]).value
+            away = ws.cell(r, h["Away"]).value
+            ref = ws.cell(r, h["Referee"]).value
+            if not d or not home or not away:
+                continue
+            if str(d) < today:
+                continue
+            if ref and str(ref).strip().lower() not in ("", "not known"):
+                continue
+            out.add((str(home), str(away)))
+    return out
+
+
 def load_state() -> dict:
     if os.path.exists(STATE):
         with open(STATE) as f:
@@ -236,12 +283,20 @@ def main() -> int:
     # whether it covers the round we are waiting on.
     pending, hit = set(), set()
     try:
-        import run_week_sheet as rws
-        pending = {(h.lower(), aw.lower()) for _, _, h, aw, _ in rws.FIXTURES}
-        got = {(f["home"].lower(), f["away"].lower()) for f in covered}
+        pending = pending_fixtures()
+        # The article writes full club names, the workbook uses
+        # football-data's short ones, so resolve before comparing.
+        names = sorted({n for fx in pending for n in fx})
+        got = set()
+        for f in covered:
+            h2 = bbc.resolve(f["home"], names)
+            a2 = bbc.resolve(f["away"], names)
+            if h2 and a2:
+                got.add((h2, a2))
         hit = pending & got
     except Exception as e:
-        print(f"{stamp} referees: could not read the pending sheet ({e})")
+        print(f"{stamp} referees: could not read the workbook "
+              f"({type(e).__name__}: {e})")
 
     record = {
         "url": newest["url"], "slug": newest["slug"],
