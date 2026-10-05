@@ -10,7 +10,7 @@
   <array>
     <string>/bin/zsh</string>
     <string>-lc</string>
-    <string>cd '/Users/arturmarkosyan/PycharmProjects/football-cards' &amp;&amp; .venv/bin/python cards/topup.py; .venv/bin/python cards/check_referees.py; .venv/bin/python cards/rescore_when_ready.py</string>
+    <string>cd '/Users/arturmarkosyan/PycharmProjects/football-cards' &amp;&amp; .venv/bin/python cards/topup.py; .venv/bin/python cards/check_referees.py; .venv/bin/python cards/rescore_when_ready.py; .venv/bin/python cards/bias_watch.py --quiet</string>
   </array>
 
   <!-- Daily, not weekly: football-data publishes on no fixed schedule, and a

@@ -62,9 +62,9 @@ def fill_from_bbc(a) -> int:
     print(f"reading {len(scraped)} scraped matches from {os.path.basename(path)}\n")
 
     wb = load_workbook(a.file)
-    ws = wb["Predictions"]
+    ws = wb[a.sheet]
     h = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
-
+    div_col = "Div"
     fixtures = {}
     for r in range(2, ws.max_row + 1):
         home = ws.cell(r, h["Home"]).value
@@ -72,7 +72,7 @@ def fill_from_bbc(a) -> int:
         date = ws.cell(r, h["Date"]).value
         if not home or not away or not date or home == "Example FC":
             continue
-        fixtures[(str(date), ws.cell(r, h["Div"]).value, home, away)] = r
+        fixtures[(str(date), ws.cell(r, h[div_col]).value, home, away)] = r
     names = sorted({k[2] for k in fixtures} | {k[3] for k in fixtures})
 
     filled = kept = skipped = unmatched = 0
@@ -127,6 +127,8 @@ def main() -> int:
                     default="football-data")
     ap.add_argument("--csv", default=None,
                     help="the scrape to read for --source bbc")
+    ap.add_argument("--sheet", default="Predictions",
+                    help="which sheet to fill; a weekly sheet, or Predictions")
     a = ap.parse_args()
 
     if a.source == "bbc":
