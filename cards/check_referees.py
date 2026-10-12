@@ -11,28 +11,37 @@ The referee is 48% of the model's value, so a week's predictions made before
 the appointments are the weaker version of the model. Knowing the hour they
 land is worth a daily HTTP request.
 
-THREE FORMATS, BECAUSE THE EFL USES THREE
+THE MARKUP IS NOT WORTH PARSING
 
-    <h2>Friday, 18 September 2026</h2>          date
-    <h3>Sky Bet Championship</h3>               competition
-    <h4>Bristol City v Watford (20:00)</h4>
-    <p>Referee: Oliver Langford Assistants: ...</p>
+Four layouts in four weeks:
 
-    <h3>Saturday, 26 September 2026</h3>        date -- in h3 this time
-    <p><strong>Sky Bet League One</strong></p>  competition -- in a p
+    <h2>Friday, 18 September</h2> <h3>Sky Bet Championship</h3>
+    <h4>Bristol City v Watford (20:00)</h4> <p>Referee: Oliver Langford ...
+
+    <h3>Saturday, 26 September</h3> <p><strong>Sky Bet League One</strong></p>
     <p>Cambridge United v AFC Wimbledon (15:00)<br />BEN TONER<br />...
 
-The second shape cost a week. The 26 September appointments parsed fine --
-all fourteen fixtures, all fourteen referees -- but the competition was in a
-<p><strong> rather than an <h3>, so every fixture came out with no division
-and the filter that keeps only league fixtures threw all of them away. The
-job reported "0 fixtures, still waiting" and never raised the alert, on a day
-when the appointments were sitting right there.
+    <p>Accrington Stanley v Sunderland U21 (19:00)<br />STEVEN COPELAND<br />
 
-So headings are no longer trusted to mean what their tag says. Every heading
-and every bold paragraph is collected as a marker and classified by its TEXT:
-a competition if it names one, otherwise a date. That reads all three shapes
-and does not care which tag the EFL picks next.
+    <h3>Friday, 9 October</h3> <h4>EFL Championship</h4>
+    <p><strong>West Ham United v QPR (20:00)</strong><br />Referee: Ruebyn ...
+
+Chasing each one cost a week of referees twice: the fixtures parsed, or did
+not, and the job reported "0 fixtures, still waiting" on days when the
+appointments were published and sitting there.
+
+So this does not parse markup. It flattens the article to lines -- <br>, </p>
+and every closing heading become line breaks -- and then reads the lines the
+way a person does, in order:
+
+    a line naming a competition  -> that is the division from here on
+    a line naming a month        -> that is the date from here on
+    "Home v Away (HH:MM)"        -> a fixture
+    the next "Referee: X", or
+      the next ALL-CAPS NAME     -> that fixture's referee
+
+Nothing about which tag holds what. A fifth layout that keeps the same reading
+order needs no change here.
 
 The content is inside the page's Nuxt payload rather than its rendered body,
 so this reads the raw HTML rather than stripped text.
@@ -90,24 +99,24 @@ CUPS = ("trophy", "carabao", "play-off", "playoff", "laws-of-the-game", "laws")
 
 LINK = re.compile(r'"(/news/(\d{4})/([a-z]+)/(\d{2})/([a-z0-9\-]*referee[a-z0-9\-]*)/)"')
 
-# Any heading, or any bold paragraph, is a candidate marker. What it MEANS is
-# decided by its text, not by its tag -- see the note above.
-MARKER = re.compile(
-    r"<h[1-4][^>]*>(.*?)</h[1-4]>|<p[^>]*>\s*<strong>(.*?)</strong>", re.S)
-
-# Team names never contain a tag, a newline or a backslash. Saying so stops a
-# capture running backwards across the whole page: without it the first
-# fixture on a page swallowed the entire site header as its home team.
-NAME = r"[^<>\\\n]{2,40}?"
-
-FIXTURE_H4 = re.compile(
-    r"<h4[^>]*>\s*(" + NAME + r")\s+v\s+(" + NAME + r")\s*"
-    r"\((\d{1,2}[:.]\d{2})\)\s*</h4>"
-    r".{0,12}?<p[^>]*>\s*Referee:\s*(.+?)\s+Assistants?:", re.S | re.I)
-FIXTURE_BR = re.compile(
-    r"<p[^>]*>\s*(" + NAME + r")\s+v\s+(" + NAME + r")\s*"
-    r"\((\d{1,2}[:.]\d{2})\)\s*<br\s*/?>"
-    r"\s*([A-Z][A-Z '&.\-]{3,40}?)\s*<br", re.S)
+# A fixture line: "Home v Away (19:45)". Team names hold no digits-colon
+# pair and no "v" of their own, so this is unambiguous once the markup is gone.
+FIXTURE_LINE = re.compile(
+    r"^(.{2,40}?)\s+v\s+(.{2,40}?)\s*\((\d{1,2}[:.]\d{2})\)\s*$")
+# "Referee: Oliver Langford Assistants: George Byrne ... Fourth Official:
+# Simon Hooper" arrives as ONE line in some layouts, so the name has to stop
+# at the next role. Without that, the surname taken was the fourth official's
+# and every referee in the 18-20 September article came out wrong while
+# looking perfectly plausible.
+REFEREE_LINE = re.compile(
+    r"^Referee\s*:\s*(.+?)\s*(?:\b(?:Assistants?|Fourth Official|VAR|AVAR|"
+    r"Observer)\b.*)?$", re.I)
+# A bare name in capitals, as the cup articles write it. Allows a short
+# particle ("DE SOUSA") but not a sentence.
+CAPS_LINE = re.compile(r"^([A-Z][A-Z'\-]*(?:\s+[A-Z][A-Z'\-]*){1,3})$")
+# "Assistants:", "Fourth Official:" and the like are not referees.
+NOT_REFEREE = re.compile(r"^(assistants?|fourth official|var|avar|observer)\b",
+                         re.I)
 
 MONTHS = ("january", "february", "march", "april", "may", "june", "july",
           "august", "september", "october", "november", "december")
@@ -142,6 +151,64 @@ def list_articles(raw: str) -> list[dict]:
     return out
 
 
+# The article body inside the Nuxt payload. Reading the whole page instead
+# picks up the site navigation, whose menu says "Championship", "League One",
+# "League Two" -- which made the EFL Trophy article report 22 Championship
+# fixtures. The body has to be isolated before anything else is read.
+OPENER = re.compile(r"content:\s*(['\"])")
+
+
+def article_body(raw: str) -> str:
+    """Every `content:` string in the payload, scanned not regexed.
+
+    The payload uses single quotes in some articles and double in others, and
+    the strings carry escaped quotes and backslash-n. A regex for one style
+    silently returned nothing for the other -- which is how 18-20 September
+    went from parsing correctly to parsing not at all. Scanning handles both
+    without caring.
+    """
+    chunks = []
+    for m in OPENER.finditer(raw):
+        q = m.group(1)
+        i = m.end()
+        buf = []
+        while i < len(raw):
+            c = raw[i]
+            if c == "\\" and i + 1 < len(raw):
+                buf.append(raw[i:i + 2])
+                i += 2
+                continue
+            if c == q:
+                break
+            buf.append(c)
+            i += 1
+        chunks.append("".join(buf))
+    keep = [c for c in chunks if " v " in c and "(" in c]
+    return "\n".join(keep or chunks)
+
+
+def to_lines(raw: str) -> list[str]:
+    """The article as the lines a reader would see, markup removed.
+
+    Not stripping <script> first, which is the obvious move and deletes
+    everything: the content lives inside the page's Nuxt payload, so the
+    script block IS the text.
+    """
+    t = article_body(raw)
+    # Block boundaries become line breaks. \\n is how the payload spells a
+    # newline inside its JS string, so it counts as one too.
+    t = re.sub(r"(?i)<br\s*/?>", "\n", t)
+    t = re.sub(r"(?i)</(p|h[1-6]|li|div|tr|td)\s*>", "\n", t)
+    t = t.replace("\\n", "\n")
+    t = re.sub(r"<[^>]+>", "", t)
+    out = []
+    for line in t.split("\n"):
+        line = clean(line)
+        if line:
+            out.append(line)
+    return out
+
+
 def classify(text: str) -> tuple[str, str] | None:
     """A marker's meaning comes from its words, not from its tag."""
     low = text.lower()
@@ -154,29 +221,43 @@ def classify(text: str) -> tuple[str, str] | None:
 
 
 def parse_article(raw: str) -> list[dict]:
-    """Fixtures with date, competition and referee, in document order."""
-    marks = []
-    for m in MARKER.finditer(raw):
-        text = clean(m.group(1) if m.group(1) is not None else m.group(2))
-        got = classify(text)
-        if got:
-            marks.append((m.start(), got[0], got[1]))
-    for pat, kind in ((FIXTURE_H4, "h4"), (FIXTURE_BR, "br")):
-        for m in pat.finditer(raw):
-            marks.append((m.start(), "fixture",
-                          (clean(m.group(1)), clean(m.group(2)),
-                           clean(m.group(3)), clean(m.group(4)))))
-    marks.sort(key=lambda x: x[0])
-
+    """Fixtures with date, competition and referee, read in reading order."""
+    lines = to_lines(raw)
     date = comp = None
     out = []
-    for _, kind, val in marks:
-        if kind == "date":
-            date = val
-        elif kind == "comp":
-            comp = val
-        elif kind == "fixture":
-            home, away, time, ref = val
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        fx = FIXTURE_LINE.match(line)
+        if not fx:
+            got = classify(line)
+            if got:
+                if got[0] == "comp":
+                    comp = got[1]
+                else:
+                    date = got[1]
+            i += 1
+            continue
+
+        # The referee is the next line that says so, or the next bare name in
+        # capitals -- whichever comes first, within a few lines. Looking
+        # further would start picking up the following fixture's official.
+        ref = None
+        for j in range(i + 1, min(i + 5, len(lines))):
+            nxt = lines[j]
+            if FIXTURE_LINE.match(nxt) or classify(nxt):
+                break
+            m = REFEREE_LINE.match(nxt)
+            if m:
+                ref = m.group(1)
+                break
+            if NOT_REFEREE.match(nxt):
+                continue
+            m = CAPS_LINE.match(nxt)
+            if m:
+                ref = m.group(1)
+                break
+        if ref:
             div = None
             if comp:
                 low = comp.lower()
@@ -185,9 +266,10 @@ def parse_article(raw: str) -> list[dict]:
                         div = code
                         break
             out.append({"date_text": date, "competition": comp,
-                        "division": div, "home": home, "away": away,
-                        "time": time, "referee_full": ref,
-                        "referee": model_name(ref)})
+                        "division": div, "home": fx.group(1),
+                        "away": fx.group(2), "time": fx.group(3),
+                        "referee_full": ref, "referee": model_name(ref)})
+        i += 1
     return out
 
 
