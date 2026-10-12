@@ -111,9 +111,16 @@ FIXTURE_LINE = re.compile(
 REFEREE_LINE = re.compile(
     r"^Referee\s*:\s*(.+?)\s*(?:\b(?:Assistants?|Fourth Official|VAR|AVAR|"
     r"Observer)\b.*)?$", re.I)
-# A bare name in capitals, as the cup articles write it. Allows a short
-# particle ("DE SOUSA") but not a sentence.
-CAPS_LINE = re.compile(r"^([A-Z][A-Z'\-]*(?:\s+[A-Z][A-Z'\-]*){1,3})$")
+# A bare personal name on its own line, which is how the referee appears when
+# the article does not label it: "BEN TONER" in the cup articles, "Dean
+# Whitestone" in the League One and Two sections. Two to four capitalised
+# words and nothing else.
+#
+# The anchors do the important work. The assistants sit on the very next line,
+# unlabelled too -- "Bradley Hall and Matt Archibald" -- and are rejected
+# because "and" is lower case, so the match cannot reach the end of the line.
+# The referee is simply the first such line after the fixture.
+NAME_LINE = re.compile(r"^([A-Z][A-Za-z'\-]+(?:\s+[A-Z][A-Za-z'\-]+){1,3})$")
 # "Assistants:", "Fourth Official:" and the like are not referees.
 NOT_REFEREE = re.compile(r"^(assistants?|fourth official|var|avar|observer)\b",
                          re.I)
@@ -253,7 +260,7 @@ def parse_article(raw: str) -> list[dict]:
                 break
             if NOT_REFEREE.match(nxt):
                 continue
-            m = CAPS_LINE.match(nxt)
+            m = NAME_LINE.match(nxt)
             if m:
                 ref = m.group(1)
                 break

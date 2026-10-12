@@ -39,6 +39,13 @@ ARTICLE_STRONG = ("https://www.efl.com/news/2026/september/25/"
 # A cup round: parses, but must yield no league fixtures.
 ARTICLE_CUP = ("https://www.efl.com/news/2026/september/21/"
                "referee-appointments--trophy/")
+# The fourth layout, and the one that cost the 9-12 October referees. The
+# Championship block labels the official ("Referee: Ruebyn Ricardo") but the
+# League One and Two blocks give a bare Title Case name on its own line, with
+# the assistants unlabelled on the next. Patterns wanting "Referee:" or ALL
+# CAPS matched 11 of its 43 fixtures.
+ARTICLE_BARE = ("https://www.efl.com/news/2026/october/07/"
+                "referee-appointments--9---15-october/")
 
 PASS = FAIL = SKIP = 0
 
@@ -172,6 +179,21 @@ def main() -> int:
               all(len(f["home"]) <= 40 and "window." not in f["home"]
                   for f in fx),
               f"longest home name: {max(len(f['home']) for f in fx)}")
+
+        fx = cr.parse_article(bbc.get(ARTICLE_BARE))
+        div = [f for f in fx if f["division"]]
+        check("an unlabelled Title Case referee is found",
+              len(div) == 43, f"{len(div)} of 43 fixtures got a referee")
+        by = {(f["home"], f["away"]): f["referee"] for f in div}
+        check("a labelled 'Referee:' line still works",
+              by.get(("West Ham United", "Queens Park Rangers")) == "r ricardo",
+              f"{by.get(('West Ham United', 'Queens Park Rangers'))!r}")
+        check("a bare-name line is read as the referee",
+              by.get(("Bradford City", "Leyton Orient")) == "d whitestone",
+              f"{by.get(('Bradford City', 'Leyton Orient'))!r}")
+        check("the assistants on the following line are not mistaken for one",
+              "hall" not in str(by.get(("Bradford City", "Leyton Orient"))),
+              f"{by.get(('Bradford City', 'Leyton Orient'))!r}")
 
         cup = cr.parse_article(bbc.get(ARTICLE_CUP))
         check("a cup round parses but yields no league fixtures",
