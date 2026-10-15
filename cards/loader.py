@@ -24,7 +24,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-import requests
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(os.path.dirname(HERE), "data", "raw")
@@ -195,7 +194,11 @@ def download(season: str, div: str, refresh: bool = False) -> str | None:
         return path
     os.makedirs(RAW_DIR, exist_ok=True)
     url = BASE_URL.format(season=season, div=div)
-    resp = requests.get(url, timeout=60, headers={"User-Agent": "Mozilla/5.0"})
+    import polite          # every request goes through the same rules
+    try:
+        resp = polite.fetch(url)
+    except (polite.Disallowed, RuntimeError):
+        return None
     if resp.status_code != 200 or len(resp.content) < 200:
         return None
     with open(path, "wb") as f:
@@ -403,6 +406,30 @@ def flag_unconfirmed_cards(m: pd.DataFrame,
     out = m.copy()
     now = pd.Timestamp.today().normalize() if asof is None else pd.Timestamp(asof)
     out["cards_confirmed"] = out["date"] <= now - pd.Timedelta(days=lag_days)
+    return out
+
+
+def flag_suspicious_cards(m: pd.DataFrame) -> pd.DataFrame:
+    """Mark matches where a team has a red card but no yellow cards.
+
+    Adds `cards_suspicious`. Not an impossibility -- a straight red with no
+    other bookings is legitimate, and happens in 1.9% of the 51,554 settled
+    matches since 2000/01. But it is also exactly what an unfilled row looks
+    like when the red was a SECOND caution: football-data counts a second
+    caution as a yellow AND a red, so a two-booking dismissal can never leave
+    that team on zero yellows.
+
+    Rochdale v Swindon (3 October 2026) is the case that prompted this: football
+    -data marked it confirmed at 0 yellows with one Swindon red, while the
+    player had in fact been sent off for two bookings.
+
+    So the rule is review, not reject. About one fixture in a 46-match round
+    gets flagged; a human looks it up and types the figure in by hand, and
+    hand-entered values are never overwritten.
+    """
+    out = m.copy()
+    out["cards_suspicious"] = (((out["HR"] > 0) & (out["HY"] == 0))
+                               | ((out["AR"] > 0) & (out["AY"] == 0)))
     return out
 
 

@@ -35,7 +35,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import check_referees as cr
-import fetch_results_bbc as bbc
+import polite
+import teamnames
 
 BOOK = os.path.join(os.path.dirname(HERE), "forward_test_2026-09-18.xlsx")
 COLUMN = "Referee (actual)"
@@ -62,7 +63,7 @@ def main() -> int:
 
     appointed = {}
     for u in urls:
-        fx = [f for f in cr.parse_article(bbc.get(u)) if f["division"]]
+        fx = [f for f in cr.parse_article(polite.get(u)) if f["division"]]
         print(f"{len(fx):>4} league fixtures from {u.rstrip('/').split('/')[-1]}")
         for f in fx:
             appointed[(f["home"], f["away"])] = f["referee"]
@@ -94,7 +95,7 @@ def main() -> int:
                       if ws.cell(r, h["Away"]).value})
     resolved = {}
     for (hm, aw), ref in appointed.items():
-        h2, a2 = bbc.resolve(hm, names), bbc.resolve(aw, names)
+        h2, a2 = teamnames.resolve(hm, names), teamnames.resolve(aw, names)
         if h2 and a2:
             resolved[(h2, a2)] = ref
 

@@ -80,7 +80,8 @@ from datetime import datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-import fetch_results_bbc as bbc
+import polite
+import teamnames
 import net
 
 BOOK = os.path.join(os.path.dirname(HERE), "forward_test_2026-09-18.xlsx")
@@ -330,7 +331,7 @@ def main() -> int:
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     if a.url:
-        fx = parse_article(bbc.get(a.url))
+        fx = parse_article(polite.get(a.url))
         print(f"{stamp} parsed {len(fx)} fixtures from {a.url}")
         for f in fx:
             print(f"   {f['division'] or '--'} {f['date_text']}  "
@@ -344,7 +345,7 @@ def main() -> int:
         return 0
 
     try:
-        arts = list_articles(bbc.get(CATEGORY))
+        arts = list_articles(polite.get(CATEGORY))
     except Exception as e:
         # A scheduled job that dies with a traceback looks identical in the
         # log to one that never ran. Say what happened and exit cleanly.
@@ -363,7 +364,7 @@ def main() -> int:
               f"(latest is still '{newest['slug']}')")
         return 0
 
-    fx = parse_article(bbc.get(newest["url"]))
+    fx = parse_article(polite.get(newest["url"]))
     covered = [f for f in fx if f["division"]]
 
     # "New article" is not the same as "this week's appointments". On a first
@@ -378,8 +379,8 @@ def main() -> int:
         names = sorted({n for fx in pending for n in fx})
         got = set()
         for f in covered:
-            h2 = bbc.resolve(f["home"], names)
-            a2 = bbc.resolve(f["away"], names)
+            h2 = teamnames.resolve(f["home"], names)
+            a2 = teamnames.resolve(f["away"], names)
             if h2 and a2:
                 got.add((h2, a2))
         hit = pending & got

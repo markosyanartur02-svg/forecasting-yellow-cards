@@ -11,8 +11,11 @@ So it is checked against ground truth rather than inspected: the 18-20
 September article is parsed and compared with the 35 EFL referees that were
 read off that same article by hand last week and typed into fixtures_week.py.
 
-It needs the network. If the EFL is unreachable the checks are reported as
-skipped, never as passed.
+It does NOT touch the network. The articles are saved copies in testdata/,
+fetched once through polite.py. The first version of this test fetched five
+live EFL pages every time it ran, and the parser was debugged by running it
+over and over -- which is how efl.com got dozens of requests in a few minutes.
+Parse the copy; fetch the page once.
 """
 
 from __future__ import annotations
@@ -23,8 +26,15 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import check_referees as cr
-import fetch_results_bbc as bbc
+import gzip
 import fixtures_week as fw
+
+DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "testdata")
+
+
+def saved(name: str) -> str:
+    with gzip.open(os.path.join(DATA, name), "rt", encoding="utf-8") as f:
+        return f.read()
 import net
 
 ARTICLE = ("https://www.efl.com/news/2026/september/17/"
@@ -115,7 +125,7 @@ def main() -> int:
 
     print("\ntest_parses_a_real_article_correctly")
     try:
-        raw = bbc.get(ARTICLE)
+        raw = saved("efl_18-20_sep.html.gz")
     except Exception as e:
         SKIP += 1
         print(f"  [SKIP] EFL unreachable: {e}")
@@ -164,7 +174,7 @@ def main() -> int:
 
     print("\ntest_reads_the_other_two_layouts")
     try:
-        fx = cr.parse_article(bbc.get(ARTICLE_STRONG))
+        fx = cr.parse_article(saved("efl_26_sep.html.gz"))
         div = [f for f in fx if f["division"]]
         check("competition in a <p><strong> is still recognised",
               len(div) == 14, f"{len(div)} of {len(fx)} fixtures got a division")
@@ -180,7 +190,7 @@ def main() -> int:
                   for f in fx),
               f"longest home name: {max(len(f['home']) for f in fx)}")
 
-        fx = cr.parse_article(bbc.get(ARTICLE_BARE))
+        fx = cr.parse_article(saved("efl_9-15_oct.html.gz"))
         div = [f for f in fx if f["division"]]
         check("an unlabelled Title Case referee is found",
               len(div) == 43, f"{len(div)} of 43 fixtures got a referee")
@@ -195,7 +205,7 @@ def main() -> int:
               "hall" not in str(by.get(("Bradford City", "Leyton Orient"))),
               f"{by.get(('Bradford City', 'Leyton Orient'))!r}")
 
-        cup = cr.parse_article(bbc.get(ARTICLE_CUP))
+        cup = cr.parse_article(saved("efl_trophy.html.gz"))
         check("a cup round parses but yields no league fixtures",
               len(cup) > 0 and not [f for f in cup if f["division"]],
               f"{len(cup)} fixtures, "

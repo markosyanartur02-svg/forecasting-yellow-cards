@@ -1,8 +1,159 @@
 {
-  "url": "https://www.efl.com/news/2026/october/07/referee-appointments--9---15-october/",
-  "slug": "referee-appointments--9---15-october",
-  "published": "2026-october-07",
-  "fetched_at": "2026-10-08T06:23:35+00:00",
-  "n_fixtures": 0,
-  "fixtures": []
+  "url": "https://www.efl.com/news/2026/october/14/referee-appointments--/",
+  "slug": "referee-appointments--",
+  "published": "2026-october-14",
+  "fetched_at": "2026-10-15T05:50:32+00:00",
+  "n_fixtures": 15,
+  "fixtures": [
+    {
+      "date_text": "Friday, 16 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Burnley",
+      "away": "Wolverhampton Wanderers",
+      "time": "20:00",
+      "referee_full": "Lewis Smith",
+      "referee": "l smith"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Middlesbrough",
+      "away": "Cardiff City",
+      "time": "12:30",
+      "referee_full": "Tom Nield",
+      "referee": "t nield"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Millwall",
+      "away": "Lincoln City",
+      "time": "12:30",
+      "referee_full": "Ruebyn Ricardo",
+      "referee": "r ricardo"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Watford",
+      "away": "Charlton Athletic",
+      "time": "12:30",
+      "referee_full": "Tom Bramall",
+      "referee": "t bramall"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Birmingham City",
+      "away": "Queen's Park Rangers",
+      "time": "15:00",
+      "referee_full": "Tom Kirk",
+      "referee": "t kirk"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Bristol City",
+      "away": "Sheffield United",
+      "time": "15:00",
+      "referee_full": "Ben Speedie",
+      "referee": "b speedie"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Derby County",
+      "away": "Stoke City",
+      "time": "15:00",
+      "referee_full": "Oliver Langford",
+      "referee": "o langford"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Norwich City",
+      "away": "Portsmouth",
+      "time": "15:00",
+      "referee_full": "Gavin Ward",
+      "referee": "g ward"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Southampton",
+      "away": "Bolton Wanderers",
+      "time": "15:00",
+      "referee_full": "Matt Donohue",
+      "referee": "m donohue"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Swansea City",
+      "away": "West Ham United",
+      "time": "15:00",
+      "referee_full": "Josh Smith",
+      "referee": "j smith"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "West Bromwich Albion",
+      "away": "Blackburn Rovers",
+      "time": "15:00",
+      "referee_full": "Adam Herczeg",
+      "referee": "a herczeg"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Wrexham",
+      "away": "Preston North End",
+      "time": "15:00",
+      "referee_full": "Simon Hooper",
+      "referee": "s hooper"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Leyton Orient",
+      "away": "Blackpool",
+      "time": "15:00",
+      "referee_full": "John Busby",
+      "referee": "j busby"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Accrington Stanley",
+      "away": "Gillingham",
+      "time": "15:00",
+      "referee_full": "Will Finnie",
+      "referee": "w finnie"
+    },
+    {
+      "date_text": "Saturday, 17 October 2026",
+      "competition": "EFL Championship",
+      "division": "E1",
+      "home": "Wolverhampton Wanderers",
+      "away": "Portsmouth",
+      "time": "19:45",
+      "referee_full": "Ed Duckworth",
+      "referee": "e duckworth"
+    }
+  ]
 }

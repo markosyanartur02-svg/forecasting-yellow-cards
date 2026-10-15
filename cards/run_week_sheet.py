@@ -4,10 +4,19 @@
     .venv/bin/python cards/run_week_sheet.py --from 2026-10-09 --to 2026-10-12
     .venv/bin/python cards/run_week_sheet.py --dry-run --from ... --to ...
 
-Fixtures come from the BBC feed for the dates given, PreEvent only, so a
-postponed match never reaches the sheet. The sheet is named for the range
-unless --sheet says otherwise, and re-running the same range updates that
-sheet in place rather than making another.
+Fixtures come from football-data's fixtures.csv -- the same site and the same
+team spellings as the training data, so nothing has to be matched by name.
+It is a rolling file covering roughly the next week, so build a sheet in the
+days before its fixtures, not a fortnight ahead. It does not mark
+postponements; a postponed fixture simply never gets a result and drops out
+of every score.
+
+This used to read BBC Sport's fixtures feed. That was retired along with the
+rest of the BBC scraping: BBC's terms prohibit it and its API host disallows
+crawlers.
+
+The sheet is named for the range unless --sheet says otherwise, and re-running
+the same range updates that sheet in place rather than making another.
 
 Adds a new sheet to forward_test_2026-09-18.xlsx rather than a new file, so
 one workbook holds the whole season's running record.
@@ -26,9 +35,10 @@ the Chelsea screenshot -- "Yellow Cards", not "Cards" or "Booking Points".
 
 REFEREES
 
-Taken from cards/referee_appointments.json when it is there, which
-check_referees.py writes as soon as the EFL publishes them. A fixture with no
-appointment yet falls back to the league average and says so.
+From fixtures.csv itself when football-data has filled it in, otherwise from
+cards/referee_appointments.json, which check_referees.py writes when the EFL
+publishes them. A fixture with neither falls back to the league average and
+says so.
 
 The referee is 48% of the model's value, so a sheet built before the
 appointments is the weaker version of the model. Re-run this script once
@@ -73,7 +83,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import check_referees as refs
-import fetch_results_bbc as bbc
+import polite
+import teamnames
 import freeze as freeze_mod
 import loader
 import predict as predict_mod
@@ -83,20 +94,36 @@ STAKE = 100.0
 EDGE_THRESHOLD = 0.05
 LINES = (1.5, 2.5, 3.5, 4.5, 5.5, 6.5)
 
+FIXTURES_CSV = "https://www.football-data.co.uk/fixtures.csv"
+
+
 def collect_fixtures(start: dt.date, end: dt.date) -> tuple[list, list]:
-    """(playable fixtures, postponed ones) across the four divisions."""
-    today = dt.date.today()
-    live, off = [], []
-    d = start
-    while d <= end:
-        for slug in bbc.TOURNAMENTS:
-            for g in bbc.fixtures_on(d, slug, today):
-                row = (g["division"], g["date"], g["bbc_home"], g["bbc_away"],
-                       None)
-                (off if g["status"] == "Postponed" else live).append(row)
-        d += dt.timedelta(days=1)
-    live.sort(key=lambda r: (r[1], r[0], r[2]))
-    return live, off
+    """(fixtures in range, []) for E0-E3, from football-data's fixtures.csv.
+
+    The second element is kept for the caller's sake; this source does not
+    report postponements.
+    """
+    import csv
+    import io
+    text = polite.get(FIXTURES_CSV, encoding="latin-1")
+    text = text.lstrip("\ufeff").replace("\u00ef\u00bb\u00bf", "")
+    out = []
+    for r in csv.DictReader(io.StringIO(text)):
+        div = (r.get("Div") or "").strip()
+        if div not in loader.DIVISIONS:
+            continue
+        try:
+            d = dt.datetime.strptime(r["Date"].strip(), "%d/%m/%Y").date()
+        except (KeyError, ValueError):
+            continue
+        if not (start <= d <= end):
+            continue
+        ref = (r.get("Referee") or "").strip()
+        out.append((div, d.isoformat(), r["HomeTeam"].strip(),
+                    r["AwayTeam"].strip(),
+                    loader.canonical_referee(ref) if ref else None))
+    out.sort(key=lambda x: (x[1], x[0], x[2]))
+    return out, []
 
 
 def sheet_name(start: dt.date, end: dt.date) -> str:
@@ -132,11 +159,19 @@ def played_rows(path: str, sheet: str) -> dict[tuple[str, str, str], list]:
     return out
 
 
-def appointed_referees() -> dict[tuple[str, str], str]:
-    """(home, away) lowercased -> referee, from the last EFL article seen."""
+def appointed_referees(known: list[str]) -> dict[tuple[str, str], str]:
+    """(home, away) in football-data spelling -> referee, from the last EFL
+    article seen. The EFL writes full club names, so they are resolved."""
     rec = refs.load_state()
-    return {(f["home"].lower(), f["away"].lower()): f["referee"]
-            for f in rec.get("fixtures", []) if f.get("referee")}
+    out = {}
+    for f in rec.get("fixtures", []):
+        if not f.get("referee"):
+            continue
+        h = teamnames.resolve(f["home"], known)
+        a = teamnames.resolve(f["away"], known)
+        if h and a:
+            out[(h, a)] = f["referee"]
+    return out
 
 
 FONT = "Arial"
@@ -223,9 +258,8 @@ def main() -> int:
     if not FIXTURES:
         print("no playable fixtures in that range.")
         return 1
-    print(f"  {len(FIXTURES)} playable, {len(postponed)} postponed")
-    for div, date, h, aw, _ in postponed:
-        print(f"     POSTPONED  {div} {h} v {aw} ({date})")
+    print(f"  {len(FIXTURES)} fixtures, "
+          f"{sum(1 for f in FIXTURES if f[4])} with a referee in the file")
 
     print("\nfitting model ...", flush=True)
     p = predict_mod.CardPredictor().fit(verbose=True)
@@ -236,7 +270,7 @@ def main() -> int:
         m = loader.load_matches(unlock_holdout=True)
         known = sorted(set(m.HomeTeam) | set(m.AwayTeam))
 
-    appointed = appointed_referees()
+    appointed = appointed_referees(known)
     if appointed:
         rec = refs.load_state()
         print(f"\nreferee appointments: {len(appointed)} fixtures from "
@@ -249,11 +283,11 @@ def main() -> int:
     n_appointed = 0
     for div, date, home, away, ref in FIXTURES:
         if ref is None:
-            ref = appointed.get((home.lower(), away.lower()))
-            if ref:
-                n_appointed += 1
-        h = bbc.resolve(home, known)
-        w = bbc.resolve(away, known)
+            ref = appointed.get((home, away))
+        if ref:
+            n_appointed += 1
+        h = teamnames.resolve(home, known)
+        w = teamnames.resolve(away, known)
         if not h or not w:
             unresolved.append((home, away, h, w))
             continue

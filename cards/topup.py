@@ -24,13 +24,13 @@ import sys
 import time
 from datetime import datetime, timezone
 
-import requests
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import loader  # noqa: E402
 import net  # noqa: E402
+import polite  # noqa: E402
 
 RAW = loader.RAW_DIR
 LOG = os.path.join(HERE, "topup_log.txt")
@@ -42,7 +42,6 @@ CDX = ("http://web.archive.org/cdx/search/cdx?url=football-data.co.uk"
 WAYBACK = ("https://web.archive.org/web/{ts}id_/"
            "https://www.football-data.co.uk/mmz4281/{s}/{d}.csv")
 
-UA = {"User-Agent": "Mozilla/5.0"}
 
 
 def log(msg: str) -> None:
@@ -69,9 +68,8 @@ def looks_like_results(text: str) -> bool:
 
 def fetch_live(season: str, div: str) -> str | None:
     try:
-        r = requests.get(LIVE.format(s=season, d=div), headers=UA, timeout=60,
-                         allow_redirects=True)
-    except requests.RequestException:
+        r = polite.fetch(LIVE.format(s=season, d=div))
+    except (polite.Disallowed, RuntimeError):
         return None
     if r.status_code != 200:
         return None
@@ -90,8 +88,10 @@ def fetch_archive(season: str, div: str) -> tuple[str | None, str]:
     and the second never will.
     """
     try:
-        idx = requests.get(CDX.format(s=season, d=div), headers=UA, timeout=60)
-    except requests.RequestException as exc:
+        idx = polite.fetch(CDX.format(s=season, d=div))
+    except polite.Disallowed as exc:
+        return None, f"archive refused by robots.txt ({exc})"
+    except RuntimeError as exc:
         return None, f"archive unreachable ({type(exc).__name__})"
     if idx.status_code != 200:
         return None, f"archive returned HTTP {idx.status_code}"
@@ -103,9 +103,10 @@ def fetch_archive(season: str, div: str) -> tuple[str | None, str]:
         return None, "never captured by the archive"
     ts = stamps[-1]
     try:
-        r = requests.get(WAYBACK.format(ts=ts, s=season, d=div), headers=UA,
-                         timeout=120)
-    except requests.RequestException as exc:
+        r = polite.fetch(WAYBACK.format(ts=ts, s=season, d=div))
+    except polite.Disallowed as exc:
+        return None, f"capture refused by robots.txt ({exc})"
+    except RuntimeError as exc:
         return None, f"capture {ts} unreachable ({type(exc).__name__})"
     if r.status_code != 200:
         return None, f"capture {ts} returned HTTP {r.status_code}"

@@ -52,13 +52,13 @@ MACHINE_FILLED = "actual from BBC"
 
 
 def survey(path: str, sheet: str = "Predictions", asof=None) -> dict:
-    m = loader.flag_unconfirmed_cards(loader.load_matches(unlock_holdout=True),
-                                     asof=asof)
+    m = loader.flag_suspicious_cards(loader.flag_unconfirmed_cards(
+        loader.load_matches(unlock_holdout=True), asof=asof))
     frontier = m.date.max()
     ws = load_workbook(path, data_only=True)[sheet]
     h = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
 
-    agree, change, protected, pending, missing = [], [], [], [], []
+    agree, change, protected, pending, missing, review = [], [], [], [], [], []
     for r in range(2, ws.max_row + 1):
         home = ws.cell(r, h["Home"]).value
         away = ws.cell(r, h["Away"]).value
@@ -82,6 +82,10 @@ def survey(path: str, sheet: str = "Predictions", asof=None) -> dict:
             pending.append(row)
         elif row["fd"] == actual:
             agree.append(row)
+        elif bool(x.cards_suspicious):
+            # football-data disagrees AND its row has the shape of an
+            # unfilled second booking. Do not trade a label for that.
+            review.append(row)
         elif MACHINE_FILLED not in notes:
             protected.append(row)
         else:
@@ -93,6 +97,7 @@ def survey(path: str, sheet: str = "Predictions", asof=None) -> dict:
                     + pd.Timedelta(days=loader.CARD_CONFIRMATION_LAG_DAYS)).date()
     return {"frontier": frontier, "agree": agree, "change": change,
             "protected": protected, "pending": pending, "missing": missing,
+            "review": review,
             "ready_on": ready_on}
 
 
@@ -103,11 +108,12 @@ def main() -> int:
                     help="settle the labels that ARE confirmed even though "
                          "others are still inside the lag")
     ap.add_argument("--file", default=BOOK)
+    ap.add_argument("--sheet", default="Predictions")
     ap.add_argument("--quiet", action="store_true",
                     help="one line, for the daily job")
     a = ap.parse_args()
 
-    s = survey(a.file)
+    s = survey(a.file, a.sheet)
     ready = not s["pending"] and not s["missing"]
     n = sum(len(s[k]) for k in ("agree", "change", "protected", "pending",
                                 "missing"))
@@ -130,6 +136,8 @@ def main() -> int:
     print(f"  {len(s['protected']):>3} differ but are hand-entered and are kept")
     print(f"  {len(s['pending']):>3} still inside the card lag")
     print(f"  {len(s['missing']):>3} not in football-data at all")
+    print(f"  {len(s['review']):>3} differ, but football-data's row looks "
+          "unfilled (red with no yellows) -- kept, check by hand")
 
     for r in s["change"]:
         print(f"\n  CHANGE  {r['fixture']}: {r['actual']} -> {r['fd']}")
@@ -165,7 +173,7 @@ def main() -> int:
         return 0
 
     wb = load_workbook(a.file)
-    ws = wb["Predictions"]
+    ws = wb[a.sheet]
     h = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
     for r in s["change"]:
         ws.cell(r["row"], h["ACTUAL yellows"], r["fd"])

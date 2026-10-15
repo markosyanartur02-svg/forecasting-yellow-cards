@@ -20,7 +20,7 @@ from __future__ import annotations
 import socket
 import time
 
-PROBES = ("www.football-data.co.uk", "www.efl.com", "www.bbc.co.uk")
+PROBES = ("www.football-data.co.uk", "www.efl.com")
 
 
 def online(host: str, timeout: float = 5.0) -> bool:
