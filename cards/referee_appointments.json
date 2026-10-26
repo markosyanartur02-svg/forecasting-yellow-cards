@@ -1,159 +1,429 @@
 {
-  "url": "https://www.efl.com/news/2026/october/14/referee-appointments--/",
-  "slug": "referee-appointments--",
-  "published": "2026-october-14",
-  "fetched_at": "2026-10-15T05:50:32+00:00",
-  "n_fixtures": 15,
+  "url": "https://www.efl.com/news/2026/october/20/referee-appointments--16-20-october/",
+  "slug": "referee-appointments--16-20-october",
+  "published": "2026-october-20",
+  "fetched_at": "2026-10-21T07:46:25+00:00",
+  "n_fixtures": 42,
   "fixtures": [
     {
-      "date_text": "Friday, 16 October 2026",
-      "competition": "EFL Championship",
+      "date_text": "Friday, 23rd October 2026",
+      "competition": "Sky Bet Championship",
       "division": "E1",
-      "home": "Burnley",
-      "away": "Wolverhampton Wanderers",
+      "home": "Bolton Wanderers",
+      "away": "Middlesbrough",
       "time": "20:00",
-      "referee_full": "Lewis Smith",
-      "referee": "l smith"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Middlesbrough",
-      "away": "Cardiff City",
-      "time": "12:30",
-      "referee_full": "Tom Nield",
-      "referee": "t nield"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Millwall",
-      "away": "Lincoln City",
-      "time": "12:30",
-      "referee_full": "Ruebyn Ricardo",
-      "referee": "r ricardo"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Watford",
-      "away": "Charlton Athletic",
-      "time": "12:30",
-      "referee_full": "Tom Bramall",
-      "referee": "t bramall"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Birmingham City",
-      "away": "Queen's Park Rangers",
-      "time": "15:00",
-      "referee_full": "Tom Kirk",
-      "referee": "t kirk"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Bristol City",
-      "away": "Sheffield United",
-      "time": "15:00",
-      "referee_full": "Ben Speedie",
-      "referee": "b speedie"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Derby County",
-      "away": "Stoke City",
-      "time": "15:00",
-      "referee_full": "Oliver Langford",
-      "referee": "o langford"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Norwich City",
-      "away": "Portsmouth",
-      "time": "15:00",
-      "referee_full": "Gavin Ward",
-      "referee": "g ward"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Southampton",
-      "away": "Bolton Wanderers",
-      "time": "15:00",
-      "referee_full": "Matt Donohue",
-      "referee": "m donohue"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Swansea City",
-      "away": "West Ham United",
-      "time": "15:00",
-      "referee_full": "Josh Smith",
-      "referee": "j smith"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "West Bromwich Albion",
-      "away": "Blackburn Rovers",
-      "time": "15:00",
-      "referee_full": "Adam Herczeg",
-      "referee": "a herczeg"
-    },
-    {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Wrexham",
-      "away": "Preston North End",
-      "time": "15:00",
       "referee_full": "Simon Hooper",
       "referee": "s hooper"
     },
     {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
       "division": "E1",
-      "home": "Leyton Orient",
-      "away": "Blackpool",
-      "time": "15:00",
+      "home": "Charlton Athletic",
+      "away": "Norwich City",
+      "time": "12:30",
       "referee_full": "John Busby",
       "referee": "j busby"
     },
     {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
       "division": "E1",
-      "home": "Accrington Stanley",
-      "away": "Gillingham",
+      "home": "Portsmouth",
+      "away": "Millwall",
+      "time": "12:30",
+      "referee_full": "Tom Reeves",
+      "referee": "t reeves"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Sheffield United",
+      "away": "Derby County",
+      "time": "12:30",
+      "referee_full": "Steve Martin",
+      "referee": "s martin"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Blackburn Rovers",
+      "away": "Wrexham",
+      "time": "15:00",
+      "referee_full": "Matt Corlett",
+      "referee": "m corlett"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Cardiff City",
+      "away": "Birmingham City",
+      "time": "15:00",
+      "referee_full": "Tim Robinson",
+      "referee": "t robinson"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Lincoln City",
+      "away": "Burnley",
+      "time": "15:00",
+      "referee_full": "Tom Parsons",
+      "referee": "t parsons"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Preston North End",
+      "away": "West Bromwich Albion",
+      "time": "15:00",
+      "referee_full": "Elliot Bell",
+      "referee": "e bell"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Queens Park Rangers",
+      "away": "Swansea City",
+      "time": "15:00",
+      "referee_full": "Sam Allison",
+      "referee": "s allison"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Stoke City",
+      "away": "Bristol City",
+      "time": "15:00",
+      "referee_full": "James Bell",
+      "referee": "j bell"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "West Ham United",
+      "away": "Southampton",
+      "time": "15:00",
+      "referee_full": "Michael Salisbury",
+      "referee": "m salisbury"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet Championship",
+      "division": "E1",
+      "home": "Wolverhampton Wanderers",
+      "away": "Watford",
+      "time": "15:00",
+      "referee_full": "Bobby Madley",
+      "referee": "b madley"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Huddersfield Town",
+      "away": "Wigan Athletic",
+      "time": "12:30",
+      "referee_full": "David Rock",
+      "referee": "d rock"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Luton Town",
+      "away": "Leicester City",
+      "time": "12:30",
+      "referee_full": "Martin Woods",
+      "referee": "m woods"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "AFC Wimbledon",
+      "away": "Wycombe Wanderers",
+      "time": "15:00",
+      "referee_full": "Craig Hicks",
+      "referee": "c hicks"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Blackpool",
+      "away": "Mansfield Town",
+      "time": "15:00",
+      "referee_full": "Ollie Yates",
+      "referee": "o yates"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Bromley",
+      "away": "Peterborough United",
+      "time": "15:00",
+      "referee_full": "Edward Duckworth",
+      "referee": "e duckworth"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Burton Albion",
+      "away": "Leyton Orient",
+      "time": "15:00",
+      "referee_full": "Richard Eley",
+      "referee": "r eley"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Cambridge United",
+      "away": "Plymouth Argyle",
+      "time": "15:00",
+      "referee_full": "Michael Barlow",
+      "referee": "m barlow"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Doncaster Rovers",
+      "away": "Sheffield Wednesday",
+      "time": "15:00",
+      "referee_full": "Ross Martin",
+      "referee": "r martin"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Notts County",
+      "away": "Stockport County",
+      "time": "15:00",
+      "referee_full": "Darren Drysdale",
+      "referee": "d drysdale"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Oxford United",
+      "away": "Bradford City",
+      "time": "15:00",
+      "referee_full": "Neil Hair",
+      "referee": "n hair"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Reading",
+      "away": "Barnsley",
+      "time": "15:00",
+      "referee_full": "Scott Oldham",
+      "referee": "s oldham"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Stevenage",
+      "away": "Milton Keynes Dons",
       "time": "15:00",
       "referee_full": "Will Finnie",
       "referee": "w finnie"
     },
     {
-      "date_text": "Saturday, 17 October 2026",
-      "competition": "EFL Championship",
-      "division": "E1",
-      "home": "Wolverhampton Wanderers",
-      "away": "Portsmouth",
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Bristol Rovers",
+      "away": "Swindon Town",
+      "time": "12:30",
+      "referee_full": "Sebastian Stockbridge",
+      "referee": "s stockbridge"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Cheltenham Town",
+      "away": "Newport County",
+      "time": "12:30",
+      "referee_full": "Benjamin Speedie",
+      "referee": "b speedie"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Northampton Town",
+      "away": "Colchester United",
+      "time": "12:30",
+      "referee_full": "Scott Jackson",
+      "referee": "s jackson"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Barnet",
+      "away": "Oldham Athletic",
+      "time": "15:00",
+      "referee_full": "Alan Young",
+      "referee": "a young"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Chesterfield",
+      "away": "Crewe Alexandra",
+      "time": "15:00",
+      "referee_full": "William Davis",
+      "referee": "w davis"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Crawley Town",
+      "away": "Tranmere Rovers",
+      "time": "15:00",
+      "referee_full": "Lewis Sandoe",
+      "referee": "l sandoe"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Exeter City",
+      "away": "Fleetwood Town",
+      "time": "15:00",
+      "referee_full": "George Laflin",
+      "referee": "g laflin"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Gillingham",
+      "away": "Grimsby Town",
+      "time": "15:00",
+      "referee_full": "Sam Mulhall",
+      "referee": "s mulhall"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Rochdale",
+      "away": "Accrington Stanley",
+      "time": "15:00",
+      "referee_full": "Richie Watkins",
+      "referee": "r watkins"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Rotherham United",
+      "away": "Shrewsbury Town",
+      "time": "15:00",
+      "referee_full": "James Oldham",
+      "referee": "j oldham"
+    },
+    {
+      "date_text": "Saturday, 24th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "York City",
+      "away": "Port Vale",
+      "time": "15:00",
+      "referee_full": "David Webb",
+      "referee": "d webb"
+    },
+    {
+      "date_text": "Monday, 26th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Walsall",
+      "away": "Salford City",
+      "time": "20:00",
+      "referee_full": "Martin Coy",
+      "referee": "m coy"
+    },
+    {
+      "date_text": "Tuesday, 27th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Leicester City",
+      "away": "Wigan Athletic",
       "time": "19:45",
-      "referee_full": "Ed Duckworth",
-      "referee": "e duckworth"
+      "referee_full": "Leigh Doughty",
+      "referee": "l doughty"
+    },
+    {
+      "date_text": "Tuesday, 27th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Luton Town",
+      "away": "Doncaster Rovers",
+      "time": "19:45",
+      "referee_full": "Matthew Russell",
+      "referee": "m russell"
+    },
+    {
+      "date_text": "Tuesday, 27th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Milton Keynes Dons",
+      "away": "Bromley",
+      "time": "19:45",
+      "referee_full": "Scott Jackson",
+      "referee": "s jackson"
+    },
+    {
+      "date_text": "Tuesday, 27th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Oxford United",
+      "away": "Stockport County",
+      "time": "19:45",
+      "referee_full": "Stephen Parkinson",
+      "referee": "s parkinson"
+    },
+    {
+      "date_text": "Tuesday, 27th October 2026",
+      "competition": "Sky Bet League One",
+      "division": "E2",
+      "home": "Sheffield Wednesday",
+      "away": "Cambridge United",
+      "time": "19:45",
+      "referee_full": "Dean Whitestone",
+      "referee": "d whitestone"
+    },
+    {
+      "date_text": "Tuesday, 27th October 2026",
+      "competition": "Sky Bet League Two",
+      "division": "E3",
+      "home": "Barnet",
+      "away": "York City",
+      "time": "19:45",
+      "referee_full": "Ben Toner",
+      "referee": "b toner"
     }
   ]
 }
