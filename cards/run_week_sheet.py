@@ -52,8 +52,15 @@ genuinely improves the forecast. It stops being legitimate the moment the
 match kicks off, because the model refits on everything known so far and
 would quietly produce a prediction informed by the result.
 
-So a row dated before today keeps exactly the cells it already had -- its
-prediction, and any prices you had written into it.
+So a row for a fixture that has kicked off keeps exactly the cells it already
+had -- its prediction, and any prices you had written into it -- and a fixture
+that has kicked off without a row never gets one. Kick-off is judged by the
+date and UK time in fixtures.csv, so a sheet refreshed on a Saturday evening
+still adds Sunday's referees but leaves Saturday's rows alone.
+
+Played rows survive even when fixtures.csv no longer lists the match, which it
+stops doing once football-data posts the result. Before that was handled, a
+refresh after an update deleted the weekend's rows, prices and all.
 
 This guard exists because it was needed. The 26 September appointments were
 published the day before the round and the watcher failed to notice, so that
@@ -73,9 +80,11 @@ import datetime as dt
 import os
 import sys
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import numpy as np
 from openpyxl import load_workbook
+from openpyxl.formula.translate import Translator
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
@@ -95,12 +104,32 @@ EDGE_THRESHOLD = 0.05
 LINES = (1.5, 2.5, 3.5, 4.5, 5.5, 6.5)
 
 FIXTURES_CSV = "https://www.football-data.co.uk/fixtures.csv"
+UK = ZoneInfo("Europe/London")      # football-data gives kick-offs in UK time
+
+
+def uk_now() -> datetime:
+    return datetime.now(UK)
+
+
+def kicked_off(date: str, time: str, now: datetime) -> bool:
+    """Has this fixture started? A same-day fixture with no usable time counts
+    as started: a missing time must not let a prediction slip in after
+    kick-off."""
+    today = now.date().isoformat()
+    if date != today:
+        return date < today
+    try:
+        hh, mm = (int(x) for x in time.replace(".", ":").split(":")[:2])
+    except (ValueError, AttributeError):
+        return True
+    return (hh, mm) <= (now.hour, now.minute)
 
 
 def collect_fixtures(start: dt.date, end: dt.date) -> tuple[list, list]:
     """(fixtures in range, []) for E0-E3, from football-data's fixtures.csv.
 
-    The second element is kept for the caller's sake; this source does not
+    Each fixture is (div, date, home, away, referee, kick-off time). The
+    second element is kept for the caller's sake; this source does not
     report postponements.
     """
     import csv
@@ -121,7 +150,8 @@ def collect_fixtures(start: dt.date, end: dt.date) -> tuple[list, list]:
         ref = (r.get("Referee") or "").strip()
         out.append((div, d.isoformat(), r["HomeTeam"].strip(),
                     r["AwayTeam"].strip(),
-                    loader.canonical_referee(ref) if ref else None))
+                    loader.canonical_referee(ref) if ref else None,
+                    (r.get("Time") or "").strip()))
     out.sort(key=lambda x: (x[1], x[0], x[2]))
     return out, []
 
@@ -131,8 +161,11 @@ def sheet_name(start: dt.date, end: dt.date) -> str:
         return f"Week {start.strftime('%-d %b')}"
     return f"Week {start.strftime('%-d')}-{end.strftime('%-d %b')}"
 
-def played_rows(path: str, sheet: str) -> dict[tuple[str, str, str], list]:
-    """Whole rows for fixtures dated before today, kept verbatim."""
+def played_rows(path: str, sheet: str,
+                started: frozenset = frozenset()) -> dict[tuple[str, str, str], dict]:
+    """Whole rows for fixtures dated before today, or in `started`, kept
+    verbatim: {(date, home, away): {"row": n, "cells": [(header, value, col)]}}.
+    The row and column are where the cell was, so a formula can be moved."""
     if not os.path.exists(path):
         return {}
     wb = load_workbook(path, data_only=False)
@@ -143,7 +176,7 @@ def played_rows(path: str, sheet: str) -> dict[tuple[str, str, str], list]:
     for need in ("Date", "Home", "Away"):
         if need not in head:
             return {}
-    today = datetime.now().date().isoformat()
+    today = uk_now().date().isoformat()
     out = {}
     for r in range(2, ws.max_row + 1):
         date = ws.cell(r, head["Date"]).value
@@ -151,11 +184,12 @@ def played_rows(path: str, sheet: str) -> dict[tuple[str, str, str], list]:
         away = ws.cell(r, head["Away"]).value
         if not date or not home or not away:
             continue
-        if str(date) >= today:
+        key = (str(date), str(home), str(away))
+        if str(date) >= today and key not in started:
             continue
-        out[(str(date), str(home), str(away))] = [
-            (ws.cell(1, c).value, ws.cell(r, c).value)
-            for c in range(1, ws.max_column + 1)]
+        out[key] = {"row": r, "cells": [
+            (ws.cell(1, c).value, ws.cell(r, c).value, c)
+            for c in range(1, ws.max_column + 1)]}
     return out
 
 
@@ -279,26 +313,36 @@ def main() -> int:
         print("\nno referee appointments on file yet -- run "
               "cards/check_referees.py")
 
-    rows, unresolved = [], []
+    rows, unresolved, started = [], [], set()
     n_appointed = 0
-    for div, date, home, away, ref in FIXTURES:
-        if ref is None:
-            ref = appointed.get((home, away))
-        if ref:
-            n_appointed += 1
+    now = uk_now()
+    for div, date, home, away, ref, kickoff in FIXTURES:
         h = teamnames.resolve(home, known)
         w = teamnames.resolve(away, known)
         if not h or not w:
             unresolved.append((home, away, h, w))
             continue
+        if kicked_off(date, kickoff, now):
+            started.add((date, h, w))
+            continue
+        if ref is None:
+            ref = appointed.get((home, away))
+        if ref:
+            n_appointed += 1
         rows.append({"division": div, "date": date, "home": h, "away": w,
                      "referee": ref})
-    print(f"{n_appointed} of {len(FIXTURES)} fixtures have a referee")
     if unresolved:
         print(f"\nABORTING: {len(unresolved)} team name(s) unresolved")
         for u in unresolved:
             print("   ", u)
         return 1
+    if started:
+        print(f"{len(started)} fixture(s) have already kicked off -- no new "
+              "prediction is made for them")
+    if not rows:
+        print("nothing left to predict in that range.")
+        return 1
+    print(f"{n_appointed} of {len(rows)} fixtures to predict have a referee")
 
     print(f"\npredicting {len(rows)} fixtures ...\n", flush=True)
     preds = []
@@ -326,17 +370,28 @@ def main() -> int:
         print("\ndry run -- nothing written")
         return 0
 
-    write(a.file, sheet, preds, fp)
+    write(a.file, sheet, preds, fp, frozenset(started))
     return 0
 
 
-def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
-    frozen = played_rows(path, sheet)
+def write(path: str, sheet: str, preds: list[dict], fingerprint: str,
+          started: frozenset = frozenset()) -> None:
+    frozen = played_rows(path, sheet, started)
     if frozen:
-        print(f"\n{len(frozen)} fixture(s) have already been played -- their "
+        print(f"\n{len(frozen)} fixture(s) have already kicked off -- their "
               "existing rows are kept exactly as they are:")
         for d, h, a in sorted(frozen):
             print(f"   {d} {h} v {a}")
+
+    # Every row of the new sheet, in date order: a prediction, or a kept row.
+    # A kept row stays even when fixtures.csv no longer lists the match.
+    def div_of(kept):
+        return next((v for name, v, _ in kept["cells"] if name == "Div"), "") or ""
+    entries = [((q["date"], q["division"], q["home"]), q, None) for q in preds
+               if (q["date"], q["home"], q["away"]) not in frozen]
+    entries += [((d, div_of(k), h), None, k) for (d, h, a), k in frozen.items()]
+    entries.sort(key=lambda e: e[0])
+
     wb = load_workbook(path)
     if sheet in wb.sheetnames:
         del wb[sheet]
@@ -358,13 +413,20 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
     ws.freeze_panes = "F2"
 
     first_row = 2
-    for n, q in enumerate(preds):
+    for n, (_, q, keep) in enumerate(entries):
         i = first_row + n
-        keep = frozen.get((q["date"], q["home"], q["away"]))
         if keep:
-            for name, value in keep:
-                if name in C:
-                    ws.cell(i, C[name], value)
+            for name, value, col in keep["cells"]:
+                if name not in C:
+                    continue
+                if isinstance(value, str) and value.startswith("=") \
+                        and (col, keep["row"]) != (C[name], i):
+                    # The row may have moved; its formulas must point at
+                    # their own row, not at whatever now sits where it was.
+                    value = Translator(
+                        value, origin=f"{get_column_letter(col)}{keep['row']}"
+                    ).translate_formula(f"{L[name]}{i}")
+                ws.cell(i, C[name], value)
             for name, _, kind in cols:
                 cell = ws.cell(i, C[name])
                 cell.font = Font(FONT, size=9)
@@ -460,7 +522,7 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
             elif kind.startswith("calc"):
                 cell.fill = CALC
 
-    last = first_row + len(preds) - 1
+    last = first_row + len(entries) - 1
     s = last + 2
     pl, betc, wonc = L["P/L EUR"], L["BET?"], L["Won?"]
     summary = [
@@ -522,7 +584,7 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
         "",
         "WHAT THIS SHEET IS AND IS NOT",
         "",
-        f"{len(preds)} fixtures. A sample this size tells you nothing about "
+        f"{len(entries)} fixtures. A sample this size tells you nothing about "
         "whether the model beats a bookmaker -- a verdict on profitability "
         "needs thousands of bets. Treat a single week as practice for the "
         "workflow.",
@@ -544,7 +606,8 @@ def write(path: str, sheet: str, preds: list[dict], fingerprint: str) -> None:
 
     wb.save(path)
     print(f"\nwrote sheet '{sheet}' into {os.path.basename(path)}")
-    print(f"  {len(preds)} fixtures, stake EUR {STAKE:.0f}, "
+    print(f"  {len(entries)} fixtures ({len(entries) - len(frozen)} predicted "
+          f"now, {len(frozen)} kept), stake EUR {STAKE:.0f}, "
           f"edge threshold {EDGE_THRESHOLD:.0%}")
     print("  fill the yellow columns; green ones calculate themselves")
 

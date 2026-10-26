@@ -70,6 +70,7 @@ the only reason this is trusted to fill them in automatically.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import html as htmlmod
 import json
 import os
@@ -360,8 +361,18 @@ def main() -> int:
 
     state = load_state()
     if state.get("url") == newest["url"] and not a.refresh:
+        # How old the latest article is turns "nothing new" from routine into
+        # a signal: the EFL played 23-24 October without publishing one, and
+        # six days of identical lines did not show it.
+        age = ""
+        try:
+            y, mon, d = newest["published"].split("-")
+            published = dt.date(int(y), MONTHS.index(mon) + 1, int(d))
+            age = f", published {(dt.date.today() - published).days} days ago"
+        except ValueError:
+            pass
         print(f"{stamp} referees: nothing new "
-              f"(latest is still '{newest['slug']}')")
+              f"(latest is still '{newest['slug']}'{age})")
         return 0
 
     fx = parse_article(polite.get(newest["url"]))

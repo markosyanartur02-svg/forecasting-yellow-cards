@@ -41,6 +41,10 @@ CDX = ("http://web.archive.org/cdx/search/cdx?url=football-data.co.uk"
        "&filter=statuscode:200")
 WAYBACK = ("https://web.archive.org/web/{ts}id_/"
            "https://www.football-data.co.uk/mmz4281/{s}/{d}.csv")
+FIXTURES_CSV = "https://www.football-data.co.uk/fixtures.csv"
+# football-data usually posts results within a day or two; older than this and
+# "0 updated" stops being normal and should be said out loud
+BEHIND_DAYS = 2
 
 
 
@@ -113,6 +117,43 @@ def fetch_archive(season: str, div: str) -> tuple[str | None, str]:
     return r.content.decode("latin-1", errors="replace"), f"archive@{ts}"
 
 
+def unpublished(season: str, fixtures_text: str,
+                today: datetime) -> list[tuple[str, str, str, str]]:
+    """Matches football-data still lists as fixtures BEHIND_DAYS or more after
+    they were played, with no result in our files.
+
+    "0 updated, 4 unchanged" reads the same whether nothing was played or the
+    source is days behind. In October 2026 it was the second for a whole
+    weekend, and the log gave no hint. This tells them apart: until the result
+    is posted, a played match stays in fixtures.csv.
+    """
+    import csv
+    have = set()
+    for div in loader.DIVISIONS:
+        path = os.path.join(RAW, f"{season}_{div}.csv")
+        if os.path.exists(path):
+            with open(path, encoding="latin-1") as f:
+                for r in csv.DictReader(io.StringIO(
+                        f.read().lstrip("﻿").replace("ï»¿", ""))):
+                    have.add((div, (r.get("HomeTeam") or "").strip(),
+                              (r.get("AwayTeam") or "").strip()))
+    cutoff = today.date().toordinal() - BEHIND_DAYS
+    out = []
+    text = fixtures_text.lstrip("﻿").replace("ï»¿", "")
+    for r in csv.DictReader(io.StringIO(text)):
+        div = (r.get("Div") or "").strip()
+        if div not in loader.DIVISIONS:
+            continue
+        try:
+            d = datetime.strptime((r.get("Date") or "").strip(), "%d/%m/%Y")
+        except ValueError:
+            continue
+        key = (div, r["HomeTeam"].strip(), r["AwayTeam"].strip())
+        if d.toordinal() <= cutoff and key not in have:
+            out.append((div, d.date().isoformat(), key[1], key[2]))
+    return sorted(out, key=lambda x: x[1])
+
+
 def topup(season: str, dry_run: bool = False) -> dict:
     stats = {"updated": 0, "unchanged": 0, "refused": 0, "missing": 0}
     for div in sorted(loader.DIVISIONS):
@@ -176,6 +217,19 @@ def main() -> int:
     st = topup(season, dry_run=a.dry_run)
     log(f"  done: {st['updated']} updated, {st['unchanged']} unchanged, "
         f"{st['refused']} refused, {st['missing']} unavailable")
+
+    try:
+        late = unpublished(season, polite.get(FIXTURES_CSV, encoding="latin-1"),
+                           datetime.now())
+    except Exception as e:
+        late = []
+        log(f"  could not check whether football-data is behind "
+            f"({type(e).__name__})")
+    if late:
+        log(f"  WARNING: football-data is behind -- {len(late)} match(es) "
+            f"played {late[0][1]} to {late[-1][1]} have no result published "
+            "yet. Nothing to fix here: they arrive when football-data updates, "
+            "and the next run fetches them.")
 
     log("  NOTE: card counts for the most recent few days may not be filled "
         "in yet -- football-data publishes results and other stats before "

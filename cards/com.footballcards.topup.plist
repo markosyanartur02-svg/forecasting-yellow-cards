@@ -10,16 +10,27 @@
   <array>
     <string>/bin/zsh</string>
     <string>-lc</string>
-    <string>cd '/Users/arturmarkosyan/PycharmProjects/football-cards' &amp;&amp; .venv/bin/python cards/topup.py; .venv/bin/python cards/check_referees.py; .venv/bin/python cards/rescore_when_ready.py; .venv/bin/python cards/bias_watch.py --quiet</string>
+    <string>cd '/Users/arturmarkosyan/PycharmProjects/football-cards' &amp;&amp; .venv/bin/python cards/topup.py; .venv/bin/python cards/check_referees.py; .venv/bin/python cards/auto_week_sheet.py; .venv/bin/python cards/rescore_when_ready.py; .venv/bin/python cards/bias_watch.py --quiet</string>
   </array>
 
   <!-- Daily, not weekly: football-data publishes on no fixed schedule, and a
-       fetch costs nothing and spends no holdout look. -->
+       fetch costs nothing and spends no holdout look.
+       Twice a day since 26 October: football-data posted the 23 October
+       fixtures at 14:46 UK time, after the morning run and before that
+       evening's kick-offs, so a morning-only job cannot forecast a Friday
+       night match. auto_week_sheet.py comes after the referee watcher so
+       each sheet uses the newest appointments. -->
   <key>StartCalendarInterval</key>
-  <dict>
-    <key>Hour</key><integer>9</integer>
-    <key>Minute</key><integer>30</integer>
-  </dict>
+  <array>
+    <dict>
+      <key>Hour</key><integer>9</integer>
+      <key>Minute</key><integer>30</integer>
+    </dict>
+    <dict>
+      <key>Hour</key><integer>18</integer>
+      <key>Minute</key><integer>30</integer>
+    </dict>
+  </array>
 
   <!-- The reason this replaces cron: cron silently skips a run if the Mac was
        asleep at the appointed minute. launchd remembers and fires on wake. -->
