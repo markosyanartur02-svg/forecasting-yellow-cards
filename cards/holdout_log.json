@@ -76,5 +76,23 @@
     "verdict": "CONSISTENT",
     "note": "pre-registered forward test on 46 fixtures, 18-20 Sep 2026; predictions fixed before kick-off",
     "at": "2026-09-30T06:07:52+00:00"
+  },
+  {
+    "model": "NBGLM forward test",
+    "n": 114,
+    "holdout_definition": [
+      "2627"
+    ],
+    "mean_gain_vs_baseline": 0.024442742992407635,
+    "sigma": 1.4992747662517276,
+    "verdict": "CONSISTENT",
+    "sheets": {
+      "Predictions": 46,
+      "Week 26 Sep": 13,
+      "Week 9-12 Oct": 45,
+      "Week 3 Oct": 10
+    },
+    "note": "accumulating forward test on 114 fixtures; the first 46 pre-registered 18-20 Sep 2026, the rest from the weekly sheets; every prediction fixed before kick-off",
+    "at": "2026-10-26T14:53:46+00:00"
   }
 ]

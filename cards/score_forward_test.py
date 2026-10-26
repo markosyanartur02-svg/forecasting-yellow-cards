@@ -62,26 +62,46 @@ BOOK = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                     "forward_test_2026-09-18.xlsx")
 
 
+NEEDED = ("Date", "Div", "Home", "Away", "League avg", "Model expects",
+          "ACTUAL yellows", *(f"P({k})" for k in range(9)))
+
+
 def read_results(path: str) -> pd.DataFrame:
+    """Every forecast in the workbook: the pre-registered "Predictions" sheet
+    and each week's sheet after it. All were written before kick-off by the
+    same frozen model, so together they are one accumulating forward test.
+    The forecast's referee is "Referee used" in the first sheet and "Referee"
+    in the weekly ones ("Referee (actual)" is who turned up, not who the
+    forecast assumed)."""
     wb = load_workbook(path, data_only=True)
-    ws = wb["Predictions"]
-    head = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
-    rows = []
-    for r in range(2, ws.max_row + 1):
-        home = ws.cell(r, head["Home"]).value
-        if not home or home == "Example FC":
+    rows, seen = [], set()
+    for name in wb.sheetnames:
+        ws = wb[name]
+        head = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
+        if not all(k in head for k in NEEDED):
             continue
-        actual = ws.cell(r, head["ACTUAL yellows"]).value
-        rows.append({
-            "date": ws.cell(r, head["Date"]).value,
-            "division": ws.cell(r, head["Div"]).value,
-            "home": home, "away": ws.cell(r, head["Away"]).value,
-            "referee": ws.cell(r, head["Referee used"]).value,
-            "baseline": ws.cell(r, head["League avg"]).value,
-            "mu": ws.cell(r, head["Model expects"]).value,
-            "pmf": [ws.cell(r, head[f"P({k})"]).value for k in range(9)],
-            "actual": actual,
-        })
+        ref_col = head.get("Referee used") or head.get("Referee")
+        for r in range(2, ws.max_row + 1):
+            home = ws.cell(r, head["Home"]).value
+            away = ws.cell(r, head["Away"]).value
+            date = ws.cell(r, head["Date"]).value
+            if not home or home == "Example FC" or not away or not date:
+                continue
+            key = (str(date)[:10], home, away)
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append({
+                "sheet": name,
+                "date": date,
+                "division": ws.cell(r, head["Div"]).value,
+                "home": home, "away": away,
+                "referee": ws.cell(r, ref_col).value if ref_col else None,
+                "baseline": ws.cell(r, head["League avg"]).value,
+                "mu": ws.cell(r, head["Model expects"]).value,
+                "pmf": [ws.cell(r, head[f"P({k})"]).value for k in range(9)],
+                "actual": ws.cell(r, head["ACTUAL yellows"]).value,
+            })
     return pd.DataFrame(rows)
 
 
@@ -193,6 +213,11 @@ def main() -> int:
               f"gain {g.gain.mean():+.5f}  better in {(g.gain > 0).sum()}/{len(g)}"
               f"   predicted {g.mu.mean():.2f} actual {g.actual.mean():.2f}")
 
+    print("\n  BY SHEET")
+    for sheet, g in dd.groupby("sheet", sort=False):
+        print(f"     {sheet:<16} n={len(g):>3}  gain {g.gain.mean():+.5f}  "
+              f"better in {(g.gain > 0).sum()}/{len(g)}")
+
     if a.dry_run:
         print(f"\n{'=' * 66}")
         print("DRY RUN -- no holdout look recorded.")
@@ -203,8 +228,10 @@ def main() -> int:
         "holdout_definition": list(loader.HOLDOUT_SEASONS),
         "mean_gain_vs_baseline": mean, "sigma": float(sigma),
         "verdict": verdict,
-        "note": "pre-registered forward test on 46 fixtures, 18-20 Sep 2026; "
-                "predictions fixed before kick-off",
+        "sheets": {s: int(c) for s, c in dd.sheet.value_counts(sort=False).items()},
+        "note": f"accumulating forward test on {int(n)} fixtures; the first 46 "
+                "pre-registered 18-20 Sep 2026, the rest from the weekly "
+                "sheets; every prediction fixed before kick-off",
     })
     print(f"\n{'=' * 66}")
     print(f"holdout looks spent on 2026/27: {looks_taken()}")
