@@ -12,7 +12,9 @@ September article is parsed and compared with the 35 EFL referees that were
 read off that same article by hand last week and typed into fixtures_week.py.
 
 It does NOT touch the network. The articles are saved copies in testdata/,
-fetched once through polite.py. The first version of this test fetched five
+fetched once through polite.py. They are the EFL's pages, so they are kept
+locally and left out of the public repository; without them these checks
+report SKIP. The first version of this test fetched five
 live EFL pages every time it ran, and the parser was debugged by running it
 over and over -- which is how efl.com got dozens of requests in a few minutes.
 Parse the copy; fetch the page once.
@@ -128,7 +130,7 @@ def main() -> int:
         raw = saved("efl_18-20_sep.html.gz")
     except Exception as e:
         SKIP += 1
-        print(f"  [SKIP] EFL unreachable: {e}")
+        print(f"  [SKIP] saved EFL page not available: {e}")
         raw = None
 
     if raw is not None:
@@ -212,7 +214,7 @@ def main() -> int:
               f"{len([f for f in cup if f['division']])} with a division")
     except Exception as e:
         SKIP += 1
-        print(f"  [SKIP] EFL unreachable: {e}")
+        print(f"  [SKIP] saved EFL page not available: {e}")
 
     print("\n" + "-" * 62)
     print(f"{PASS}/{PASS + FAIL} checks passed"

@@ -279,3 +279,16 @@
 2026-10-26 14:17   WARNING: football-data is behind -- 40 match(es) played 2026-10-23 to 2026-10-24 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
 2026-10-26 14:17   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
 2026-10-26 14:17   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-26 14:30 top-up 2627
+2026-10-26 14:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-26 14:30   WARNING: football-data is behind -- 40 match(es) played 2026-10-23 to 2026-10-24 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-10-26 14:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-26 14:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-27 05:36 top-up 2627
+2026-10-27 05:36   2627/E0: updated 70 -> 80 rows (live site)
+2026-10-27 05:37   2627/E1: updated 132 -> 144 rows (live site)
+2026-10-27 05:37   2627/E2: updated 126 -> 138 rows (live site)
+2026-10-27 05:37   2627/E3: updated 138 -> 150 rows (live site)
+2026-10-27 05:37   done: 4 updated, 0 unchanged, 0 refused, 0 unavailable
+2026-10-27 05:37   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-27 05:37   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.

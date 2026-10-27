@@ -9,3 +9,13 @@ cards/topup_cron.log
 
 # runtime log from the local web app
 cards/app.log
+
+# Other people's data stays out of the repository. football-data's files are
+# downloaded by `python cards/loader.py --download`; the saved EFL articles the
+# referee-parser tests read are kept locally only.
+data/raw/
+cards/testdata/
+
+# Excel's lock file while the workbook is open; editor settings
+~$*
+.claude/
