@@ -79,7 +79,11 @@ def main() -> int:
         e = entries[-1]
         check("the entry is the forward test",
               "forward" in e.get("model", "").lower(), f"{e.get('model')}")
-        check("it scored all 46 fixtures", e.get("n") == 46, f"n={e.get('n')}")
+        # Every fixture with a result, across all the forecast sheets: the
+        # scorer stopped reading only the first 46 on 26 October.
+        want = int(sft.read_results(book).actual.notna().sum())
+        check(f"it scored every labelled fixture ({want})", e.get("n") == want,
+              f"n={e.get('n')}")
     check("a marker was written", os.path.exists(marker))
 
     print("\ntest_never_fires_twice")
