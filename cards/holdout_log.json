@@ -94,5 +94,45 @@
     },
     "note": "accumulating forward test on 114 fixtures; the first 46 pre-registered 18-20 Sep 2026, the rest from the weekly sheets; every prediction fixed before kick-off",
     "at": "2026-10-26T14:53:46+00:00"
+  },
+  {
+    "model": "NBGLM forward test",
+    "n": 167,
+    "holdout_definition": [
+      "2627"
+    ],
+    "mean_gain_vs_baseline": 0.04717821189183142,
+    "sigma": 2.710339221959009,
+    "verdict": "STRONG",
+    "sheets": {
+      "Predictions": 46,
+      "Week 26 Sep": 13,
+      "Week 9-12 Oct": 45,
+      "Week 3 Oct": 10,
+      "Week 22-28 Oct": 7,
+      "Week 29-4 Nov": 46
+    },
+    "note": "accumulating forward test on 167 fixtures; the first 46 pre-registered 18-20 Sep 2026, the rest from the weekly sheets; every prediction fixed before kick-off",
+    "at": "2026-11-13T10:08:28+00:00"
+  },
+  {
+    "model": "NBGLM forward test",
+    "n": 167,
+    "holdout_definition": [
+      "2627"
+    ],
+    "mean_gain_vs_baseline": 0.02195445025585268,
+    "sigma": 1.6843937816421393,
+    "verdict": "CONSISTENT",
+    "sheets": {
+      "Predictions": 46,
+      "Week 26 Sep": 13,
+      "Week 9-12 Oct": 45,
+      "Week 3 Oct": 10,
+      "Week 22-28 Oct": 7,
+      "Week 29-4 Nov": 46
+    },
+    "note": "accumulating forward test on 167 fixtures; the first 46 pre-registered 18-20 Sep 2026, the rest from the weekly sheets; every prediction fixed before kick-off; re-score of the previous look on the same 167 results, after fixing the scorer: 9+ yellows were compared as the model's P(exactly 8) against the baseline's P(exactly the count); now both sides are scored on '9 or more'. The previous entry (+0.0472, +2.7 sigma, STRONG) and the 26 Oct entry (+0.0244, +1.5 sigma) were flattered by it; the 26 Oct set rescores to +0.0098, +0.7 sigma",
+    "at": "2026-11-13T10:11:04+00:00"
   }
 ]
