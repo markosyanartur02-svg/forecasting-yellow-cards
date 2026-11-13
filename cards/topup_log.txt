@@ -292,3 +292,168 @@
 2026-10-27 05:37   done: 4 updated, 0 unchanged, 0 refused, 0 unavailable
 2026-10-27 05:37   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
 2026-10-27 05:37   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-27 14:39 top-up 2627
+2026-10-27 14:39   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-27 14:39   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-27 14:39   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-28 05:32 top-up 2627
+2026-10-28 05:32   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-10-28 09:04   network came up after about 6 minutes
+2026-10-28 09:04   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-28 09:04   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-28 09:04   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-28 14:30 top-up 2627
+2026-10-28 14:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-28 14:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-28 14:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-29 05:40 top-up 2627
+2026-10-29 05:41   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-29 05:41   WARNING: football-data is behind -- 6 match(es) played 2026-10-27 to 2026-10-27 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-10-29 05:41   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-29 05:41   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-29 14:30 top-up 2627
+2026-10-29 14:30   2627/E2: updated 138 -> 143 rows (live site)
+2026-10-29 14:30   2627/E3: updated 150 -> 151 rows (live site)
+2026-10-29 14:30   done: 2 updated, 2 unchanged, 0 refused, 0 unavailable
+2026-10-29 14:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-29 14:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-30 05:42 top-up 2627
+2026-10-30 05:42   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-30 05:42   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-30 05:42   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-30 14:30 top-up 2627
+2026-10-30 14:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-30 14:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-30 14:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-31 05:31 top-up 2627
+2026-10-31 05:31   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-31 05:31   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-31 05:31   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-10-31 14:30 top-up 2627
+2026-10-31 14:43   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-10-31 14:43   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-10-31 14:43   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-01 08:34 top-up 2627
+2026-11-01 08:35   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-01 08:35   WARNING: football-data is behind -- 2 match(es) played 2026-10-30 to 2026-10-30 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-11-01 08:35   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-01 08:35   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-01 17:38 top-up 2627
+2026-11-01 17:39   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-01 17:39   WARNING: football-data is behind -- 2 match(es) played 2026-10-30 to 2026-10-30 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-11-01 17:39   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-01 17:39   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-02 08:34 top-up 2627
+2026-11-02 08:34   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-11-02 09:52   network came up after about 3 minutes
+2026-11-02 09:52   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-02 09:52   WARNING: football-data is behind -- 43 match(es) played 2026-10-30 to 2026-10-31 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-11-02 09:52   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-02 09:52   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-02 17:36 top-up 2627
+2026-11-02 17:36   2627/E0: updated 80 -> 89 rows (live site)
+2026-11-02 17:36   2627/E1: updated 144 -> 156 rows (live site)
+2026-11-02 17:36   2627/E2: updated 143 -> 155 rows (live site)
+2026-11-02 17:36   2627/E3: updated 151 -> 163 rows (live site)
+2026-11-02 17:36   done: 4 updated, 0 unchanged, 0 refused, 0 unavailable
+2026-11-02 17:36   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-02 17:36   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-03 08:34 top-up 2627
+2026-11-03 08:34   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-11-03 09:17   network came up after about 80s
+2026-11-03 09:20   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-03 09:20   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-03 09:20   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-03 17:30 top-up 2627
+2026-11-03 17:30   2627/E0: updated 89 -> 90 rows (live site)
+2026-11-03 17:30   done: 1 updated, 3 unchanged, 0 refused, 0 unavailable
+2026-11-03 17:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-03 17:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-04 08:44 top-up 2627
+2026-11-04 08:44   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-11-04 09:36   network came up after about 2 minutes
+2026-11-04 09:36   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-04 09:36   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-04 09:36   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-04 17:31 top-up 2627
+2026-11-04 17:32   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-04 17:32   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-04 17:32   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-05 08:39 top-up 2627
+2026-11-05 08:39   2627/E1: updated 156 -> 168 rows (live site)
+2026-11-05 08:39   2627/E2: updated 155 -> 158 rows (live site)
+2026-11-05 08:39   2627/E3: updated 163 -> 164 rows (live site)
+2026-11-05 08:39   done: 3 updated, 1 unchanged, 0 refused, 0 unavailable
+2026-11-05 08:39   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-05 08:39   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-05 17:33 top-up 2627
+2026-11-05 17:33   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-05 17:33   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-05 17:33   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-06 08:44 top-up 2627
+2026-11-06 08:44   network is not up yet -- waiting up to 10 minutes (this is normal just after the Mac wakes)
+2026-11-06 08:49   network came up after about 42s
+2026-11-06 08:53   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-06 08:53   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-06 08:53   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-06 17:30 top-up 2627
+2026-11-06 17:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-06 17:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-06 17:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-07 08:34 top-up 2627
+2026-11-07 08:34   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-07 08:34   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-07 08:34   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-07 17:30 top-up 2627
+2026-11-07 17:43   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-07 17:43   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-07 17:43   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-08 08:30 top-up 2627
+2026-11-08 08:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-08 08:30   WARNING: football-data is behind -- 2 match(es) played 2026-11-06 to 2026-11-06 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-11-08 08:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-08 08:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-08 17:35 top-up 2627
+2026-11-08 17:35   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-08 17:35   WARNING: football-data is behind -- 2 match(es) played 2026-11-06 to 2026-11-06 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-11-08 17:35   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-08 17:35   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-09 08:30 top-up 2627
+2026-11-09 08:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-09 08:30   WARNING: football-data is behind -- 17 match(es) played 2026-11-06 to 2026-11-07 have no result published yet. Nothing to fix here: they arrive when football-data updates, and the next run fetches them.
+2026-11-09 08:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-09 08:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-09 17:30 top-up 2627
+2026-11-09 17:30   2627/E0: updated 90 -> 100 rows (live site)
+2026-11-09 17:30   2627/E1: updated 168 -> 180 rows (live site)
+2026-11-09 17:30   done: 2 updated, 2 unchanged, 0 refused, 0 unavailable
+2026-11-09 17:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-09 17:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-10 08:30 top-up 2627
+2026-11-10 08:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-10 08:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-10 08:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-10 17:42 top-up 2627
+2026-11-10 17:42   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-10 17:42   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-10 17:42   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-11 08:30 top-up 2627
+2026-11-11 08:31   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-11 08:31   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-11 08:31   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-11 17:37 top-up 2627
+2026-11-11 17:37   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-11 17:37   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-11 17:37   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-12 08:30 top-up 2627
+2026-11-12 08:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-12 08:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-12 08:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-12 17:33 top-up 2627
+2026-11-12 17:34   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-12 17:34   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-12 17:34   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
+2026-11-13 08:30 top-up 2627
+2026-11-13 08:30   done: 0 updated, 4 unchanged, 0 refused, 0 unavailable
+2026-11-13 08:30   NOTE: card counts for the most recent few days may not be filled in yet -- football-data publishes results and other stats before cards. See loader.flag_unconfirmed_cards.
+2026-11-13 08:30   NOTE: 2627 is the holdout. Fetching it is not a look — no model was scored here.
