@@ -105,6 +105,33 @@ def read_results(path: str) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def loglik_pair(pmfs, y, base_mu, alpha_b) -> tuple[np.ndarray, np.ndarray]:
+    """Log-probability the model and the baseline gave to what happened,
+    scored on the same event.
+
+    The sheets hold P(0)..P(8) for exactly that many yellows. For 9 or more,
+    both sides are scored on "9 or more": the model's is what its P(0..8)
+    leave over, the baseline's is its negative binomial tail.
+
+    Until 13 November 2026 the model was given P(exactly 8) and the baseline
+    P(exactly the count) instead. Barnet v York had 11 yellows, and that
+    mismatch alone credited the model with 1.9 it had not earned; Notts County
+    v Oxford and Cheltenham v Salford (9 each) were flattered the same way.
+    """
+    model, base = [], []
+    for r, v, mu in zip(pmfs, y, base_mu):
+        r = [float(x) for x in r]
+        if v <= 8:
+            model.append(r[int(v)])
+            base.append(float(np.exp(models.nb_logpmf([v], [mu], alpha_b))[0]))
+        else:
+            model.append(1.0 - sum(r))
+            base.append(1.0 - float(np.exp(models.nb_logpmf(np.arange(9.0), np.full(9, mu),
+                                                            alpha_b)).sum()))
+    return (np.log(np.clip(np.array(model), 1e-12, None)),
+            np.log(np.clip(np.array(base), 1e-12, None)))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--i-am-spending-a-holdout-look", action="store_true",
@@ -113,6 +140,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true",
                     help="score without recording a look; for testing the "
                          "scorer itself against simulated results")
+    ap.add_argument("--note", default="",
+                    help="added to the look's note in the log, e.g. what a re-score corrects")
     a = ap.parse_args()
 
     df = read_results(a.file)
@@ -153,9 +182,7 @@ def main() -> int:
     y = done.actual.to_numpy(float)
     # model: read the pre-registered distribution straight from the sheet, so
     # the score uses exactly what was committed to before kick-off
-    pm = np.array([r[int(min(v, 8))] for r, v in zip(done.pmf, y)], dtype=float)
-    ll_model = np.log(np.clip(pm, 1e-12, None))
-    ll_base = models.nb_logpmf(y, done.baseline.to_numpy(float), alpha_b)
+    ll_model, ll_base = loglik_pair(done.pmf, y, done.baseline.to_numpy(float), alpha_b)
 
     d = ll_model - ll_base
     ok = np.isfinite(d)
@@ -231,7 +258,8 @@ def main() -> int:
         "sheets": {s: int(c) for s, c in dd.sheet.value_counts(sort=False).items()},
         "note": f"accumulating forward test on {int(n)} fixtures; the first 46 "
                 "pre-registered 18-20 Sep 2026, the rest from the weekly "
-                "sheets; every prediction fixed before kick-off",
+                "sheets; every prediction fixed before kick-off"
+                + (f"; {a.note}" if a.note else ""),
     })
     print(f"\n{'=' * 66}")
     print(f"holdout looks spent on 2026/27: {looks_taken()}")

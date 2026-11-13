@@ -15,10 +15,17 @@ results are in.
 | Test | Matches | Result |
 |---|---|---|
 | Held-out seasons 2024/25 and 2025/26, scored once | 3,140 | Better log-likelihood than the league-season baseline by about 0.02 per match; calibration gap 0.8% against the baseline's 2.4% |
-| Forward test, 2026/27: every forecast written before kick-off | 114 | +0.024 per match over the baseline, +1.5 sigma, better in 75 of 114 matches. Verdict **consistent**, on a scale fixed before any result was seen |
+| Forward test, 2026/27: every forecast written before kick-off | 167 | +0.022 per match over the baseline, +1.7 sigma, better in 114 of 167 matches. Verdict **consistent**, on a scale fixed before any result was seen |
 
-The 2026/27 season is running about 0.4 cards a match above history. The baseline is low by the same
+The 2026/27 season is running about 0.3 cards a match above history. The baseline is low by the same
 amount, so this is the season, not the model drifting; it is monitored, not "fixed" mid-season.
+
+**A correction.** Until 13 November 2026 the forward-test scorer flattered matches with 9 or more
+yellows: it compared the model's probability of exactly 8 with the baseline's probability of the real
+count. Scored fairly, both on "9 or more", the first 114 matches give +0.010 per match (+0.7 sigma),
+not the +0.024 first reported. The fix and the re-score are both recorded in
+[cards/holdout_log.json](cards/holdout_log.json); the held-out seasons were scored differently and are
+unaffected.
 
 ## What drives it
 
@@ -68,7 +75,7 @@ robots.txt read as RFC 9309 says, and at least 3 seconds between requests to a s
 
 **Data checks.** Impossible card counts are caught by arithmetic; card counts from the last few days
 are treated as unconfirmed; a result typed in by hand is never overwritten by an unverified one; and
-119 test checks cover the parsers, the features, the sheet's betting arithmetic, the refresh rules and the fixture backup.
+124 test checks cover the parsers, the features, the sheet's betting arithmetic, the refresh rules, the fixture backup and the scoring.
 
 ## Run it
 
@@ -93,7 +100,7 @@ referee-parser tests read saved EFL pages that are not included here, so they re
 - **Not yet tested against bookmaker prices.** The forward test measures whether the model is
   good, not whether it is profitable; that needs prices recorded before kick-off, over many more
   matches.
-- **114 forward matches is a small sample.** The pre-registered estimate was about 1,000 matches for a
+- **167 forward matches is a small sample.** The pre-registered estimate was about 1,000 matches for a
   real verdict.
 - **Yellows only.** Many card markets count a red as two cards, which moves every line by 5 to 6
   points; the forecast sheet refuses to suggest a bet unless the market settles on yellows alone.
