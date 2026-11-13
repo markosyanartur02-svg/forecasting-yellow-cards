@@ -60,7 +60,7 @@ Runs at 09:30 and 18:30 (macOS launchd, [cards/com.footballcards.topup.plist](ca
 |---|---|
 | [topup.py](cards/topup.py) | Fetches the season's results. Never replaces a file with one holding fewer matches, and warns when the source is days behind |
 | [check_referees.py](cards/check_referees.py) | Reads the EFL's referee appointments. The parser reads the article as lines rather than by HTML tag, which survived five page layouts, and is tested against saved copies |
-| [auto_week_sheet.py](cards/auto_week_sheet.py) | Builds or refreshes the week's forecast sheet. A match that has kicked off is never re-forecast, and its row (with any prices typed in) is kept |
+| [auto_week_sheet.py](cards/auto_week_sheet.py) | Builds or refreshes the week's forecast sheet. When football-data has not listed a round yet, the EFL's referee appointments are the backup for the Championship, League One and League Two. A match that has kicked off is never re-forecast, and its row (with any prices typed in) is kept |
 | [score_forward_test.py](cards/score_forward_test.py), [bias_watch.py](cards/bias_watch.py) | Score the forecasts against what happened, and separate model drift from a high-card season |
 
 Every request goes through one fetcher, [polite.py](cards/polite.py): an honest user-agent,
@@ -68,7 +68,7 @@ robots.txt read as RFC 9309 says, and at least 3 seconds between requests to a s
 
 **Data checks.** Impossible card counts are caught by arithmetic; card counts from the last few days
 are treated as unconfirmed; a result typed in by hand is never overwritten by an unverified one; and
-104 test checks cover the parsers, the features, the sheet's betting arithmetic and the refresh rules.
+119 test checks cover the parsers, the features, the sheet's betting arithmetic, the refresh rules and the fixture backup.
 
 ## Run it
 

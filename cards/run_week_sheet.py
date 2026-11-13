@@ -11,6 +11,11 @@ days before its fixtures, not a fortnight ahead. It does not mark
 postponements; a postponed fixture simply never gets a result and drops out
 of every score.
 
+When football-data has not listed a round yet, the EFL's referee-appointments
+article is the backup (see efl_fixtures): it gives date, kick-off, teams,
+division and referee for the Championship, League One and League Two. A match
+listed by both becomes one row.
+
 This used to read BBC Sport's fixtures feed. That was retired along with the
 rest of the BBC scraping: BBC's terms prohibit it and its API host disallows
 crawlers.
@@ -78,6 +83,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -156,9 +162,86 @@ def collect_fixtures(start: dt.date, end: dt.date) -> tuple[list, list]:
     return out, []
 
 
+EFL_DATE = re.compile(r"(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)(?:\s+(\d{4}))?")
+
+
+def efl_fixtures(start: dt.date, end: dt.date) -> list[tuple]:
+    """League fixtures from the latest EFL referee-appointments article, in
+    the same shape as collect_fixtures(), with the EFL's full club names.
+
+    The backup for when football-data has not listed a round yet. On
+    13 November 2026 its fixtures file was a week old, while the EFL had
+    already published the next day's 15 League One and Two fixtures with
+    date, kick-off and referee -- everything a forecast needs. Without this,
+    those matches would have gone unforecast, as two rounds did in October.
+
+    Championship, League One and League Two only: the EFL does not appoint
+    Premier League officials.
+    """
+    rec = refs.load_state()
+    try:
+        y, mon, _ = rec.get("published", "").split("-")
+        pub = (int(y), refs.MONTHS.index(mon) + 1)
+    except ValueError:
+        pub = (start.year, start.month)
+    out = []
+    for f in rec.get("fixtures", []):
+        if not f.get("division"):
+            continue                                  # a cup tie
+        m = EFL_DATE.search(f.get("date_text") or "")
+        if not m or m.group(2).lower() not in refs.MONTHS:
+            continue
+        month = refs.MONTHS.index(m.group(2).lower()) + 1
+        year = int(m.group(3)) if m.group(3) else \
+            pub[0] + (1 if month < pub[1] - 6 else 0)  # "2nd January" in a late-December article
+        d = dt.date(year, month, int(m.group(1)))
+        if start <= d <= end:
+            out.append((f["division"], d.isoformat(), f["home"], f["away"],
+                        f.get("referee") or None, f.get("time") or ""))
+    return out
+
+
+def plan_rows(fd_fixtures: list, efl: list, known: list[str],
+              appointed: dict, now: datetime) -> tuple[list, set, list, list]:
+    """(rows to predict, started keys, unresolved football-data names,
+    skipped EFL fixtures).
+
+    football-data's list comes first; the EFL's adds only matches it does not
+    have yet, so the same match from both sources becomes one row. An EFL
+    club name that cannot be matched unambiguously is skipped and reported,
+    not guessed: a wrong match would put one game's referee on another's
+    forecast. An unresolved football-data name still aborts the run, as before.
+    """
+    rows, started, unresolved, skipped, seen = [], set(), [], [], set()
+    for source, fixtures in (("football-data", fd_fixtures), ("EFL", efl)):
+        for div, date, home, away, ref, kickoff in fixtures:
+            h = teamnames.resolve(home, known)
+            w = teamnames.resolve(away, known)
+            if not h or not w:
+                (unresolved if source == "football-data" else skipped).append(
+                    (home, away, h, w))
+                continue
+            key = (date, h, w)
+            if key in seen:
+                continue
+            seen.add(key)
+            if kicked_off(date, kickoff, now):
+                started.add(key)
+                continue
+            if ref is None:
+                ref = appointed.get((home, away))
+            rows.append({"division": div, "date": date, "home": h, "away": w,
+                         "referee": ref, "source": source})
+    return rows, started, unresolved, skipped
+
+
 def sheet_name(start: dt.date, end: dt.date) -> str:
+    """'Week 12-18 Nov', or 'Week 29 Oct-4 Nov' when the week spans two months
+    (it once came out as 'Week 29-4 Nov')."""
     if start == end:
         return f"Week {start.strftime('%-d %b')}"
+    if (start.year, start.month) != (end.year, end.month):
+        return f"Week {start.strftime('%-d %b')}-{end.strftime('%-d %b')}"
     return f"Week {start.strftime('%-d')}-{end.strftime('%-d %b')}"
 
 def played_rows(path: str, sheet: str,
@@ -288,12 +371,19 @@ def main() -> int:
     fp = freeze_mod.load_freeze()["fingerprint"]
 
     print(f"\nfixtures for {start} .. {end} ...", flush=True)
-    FIXTURES, postponed = collect_fixtures(start, end)
-    if not FIXTURES:
+    try:
+        FIXTURES, postponed = collect_fixtures(start, end)
+    except (polite.Disallowed, RuntimeError) as e:
+        print(f"  football-data unreachable ({type(e).__name__}) -- using the "
+              "EFL's referee appointments only")
+        FIXTURES, postponed = [], []
+    EFL = efl_fixtures(start, end)
+    if not FIXTURES and not EFL:
         print("no playable fixtures in that range.")
         return 1
-    print(f"  {len(FIXTURES)} fixtures, "
-          f"{sum(1 for f in FIXTURES if f[4])} with a referee in the file")
+    print(f"  {len(FIXTURES)} fixtures from football-data, "
+          f"{sum(1 for f in FIXTURES if f[4])} with a referee in the file; "
+          f"{len(EFL)} in the EFL's referee appointments")
 
     print("\nfitting model ...", flush=True)
     p = predict_mod.CardPredictor().fit(verbose=True)
@@ -313,29 +403,23 @@ def main() -> int:
         print("\nno referee appointments on file yet -- run "
               "cards/check_referees.py")
 
-    rows, unresolved, started = [], [], set()
-    n_appointed = 0
-    now = uk_now()
-    for div, date, home, away, ref, kickoff in FIXTURES:
-        h = teamnames.resolve(home, known)
-        w = teamnames.resolve(away, known)
-        if not h or not w:
-            unresolved.append((home, away, h, w))
-            continue
-        if kicked_off(date, kickoff, now):
-            started.add((date, h, w))
-            continue
-        if ref is None:
-            ref = appointed.get((home, away))
-        if ref:
-            n_appointed += 1
-        rows.append({"division": div, "date": date, "home": h, "away": w,
-                     "referee": ref})
+    rows, started, unresolved, skipped = plan_rows(FIXTURES, EFL, known,
+                                                   appointed, uk_now())
+    n_appointed = sum(1 for r in rows if r["referee"])
     if unresolved:
         print(f"\nABORTING: {len(unresolved)} team name(s) unresolved")
         for u in unresolved:
             print("   ", u)
         return 1
+    if skipped:
+        print(f"{len(skipped)} EFL fixture(s) skipped -- a club name did not "
+              "match football-data's unambiguously:")
+        for u in skipped:
+            print("   ", u)
+    from_efl = sum(1 for r in rows if r["source"] == "EFL")
+    if from_efl:
+        print(f"{from_efl} fixture(s) taken from the EFL's referee appointments "
+              "because football-data does not list them yet")
     if started:
         print(f"{len(started)} fixture(s) have already kicked off -- no new "
               "prediction is made for them")

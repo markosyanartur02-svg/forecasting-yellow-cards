@@ -150,6 +150,12 @@ def test_auto_week():
         s, e = auto.week_window(dt.date.fromisoformat(day))
         check(f"week containing {day}", (s.isoformat(), e.isoformat()), want)
 
+    for (s, e), want in (((dt.date(2026, 11, 12), dt.date(2026, 11, 18)), "Week 12-18 Nov"),
+                         ((dt.date(2026, 10, 29), dt.date(2026, 11, 4)), "Week 29 Oct-4 Nov"),
+                         ((dt.date(2026, 12, 31), dt.date(2027, 1, 6)), "Week 31 Dec-6 Jan"),
+                         ((dt.date(2026, 10, 3), dt.date(2026, 10, 3)), "Week 3 Oct")):
+        check(f"sheet name for {s} to {e}", rws.sheet_name(s, e), want)
+
     folder = tempfile.mkdtemp()
     book = os.path.join(folder, "book.xlsx")
     Workbook().save(book)
@@ -158,11 +164,68 @@ def test_auto_week():
     check("Excel's lock file means open", auto.open_in_excel(book), True)
 
 
+def test_efl_backup():
+    print("\nthe EFL's appointments fill in fixtures football-data has not listed")
+    real_state = rws.refs.load_state
+    rws.refs.load_state = lambda: {"published": "2026-november-10", "fixtures": [
+        {"date_text": "Saturday 14th November 2026", "division": "E2", "home": "AFC Wimbledon",
+         "away": "Blackpool", "time": "15:00", "referee": "o mackey"},
+        {"date_text": "Saturday 14th November 2026", "division": "E3", "home": "Salford City",
+         "away": "Northampton Town", "time": "12:30", "referee": "r jones"},
+        {"date_text": "Saturday 14th November 2026", "division": "E3", "home": "Nowhere Rovers",
+         "away": "Blackpool", "time": "15:00", "referee": "a smith"},
+        {"date_text": "Tuesday 17th November", "division": "E2", "home": "Leeds",
+         "away": "Hull", "time": "19:45", "referee": "b brown"},
+        {"date_text": "Saturday 14th November 2026", "division": None, "home": "Cup Town",
+         "away": "Blackpool", "time": "15:00", "referee": "c green"},
+        {"date_text": "Saturday 21st November 2026", "division": "E2", "home": "Leeds",
+         "away": "Blackpool", "time": "15:00", "referee": "d white"}]}
+    try:
+        efl = rws.efl_fixtures(dt.date(2026, 11, 12), dt.date(2026, 11, 18))
+        check("league fixtures in the week, cup tie and later week left out", len(efl), 4)
+        check("date and kick-off read", (efl[0][1], efl[0][5]), ("2026-11-14", "15:00"))
+        check("a date without a year takes the article's", efl[3][1], "2026-11-17")
+        check("the referee comes with it", efl[0][4], "o mackey")
+
+        rws.refs.load_state = lambda: {"published": "2026-december-30", "fixtures": [
+            {"date_text": "Saturday 2nd January", "division": "E1", "home": "Leeds",
+             "away": "Hull", "time": "15:00", "referee": "e black"}]}
+        newyear = rws.efl_fixtures(dt.date(2026, 12, 31), dt.date(2027, 1, 6))
+        check("2nd January in a late-December article is next year",
+              [f[1] for f in newyear], ["2027-01-02"])
+    finally:
+        rws.refs.load_state = real_state
+
+    known = ["AFC Wimbledon", "Blackpool", "Salford", "Northampton", "Leeds", "Hull"]
+    fd = [("E1", "2026-11-14", "Leeds", "Hull", None, "15:00"),
+          ("E2", "2026-11-14", "AFC Wimbledon", "Blackpool", None, "15:00")]
+    appointed = {("AFC Wimbledon", "Blackpool"): "o mackey"}
+    before = dt.datetime(2026, 11, 13, 10, 0, tzinfo=rws.UK)
+    rows, started, unresolved, skipped = rws.plan_rows(fd, efl, known, appointed, before)
+    got = {(r["home"], r["away"]): r for r in rows}
+    check("a match in both lists becomes one row", len(rows), 4)
+    check("football-data's copy is the one kept", got[("AFC Wimbledon", "Blackpool")]["source"],
+          "football-data")
+    check("a match only the EFL lists is added, under football-data's spelling",
+          (got[("Salford", "Northampton")]["source"], got[("Salford", "Northampton")]["referee"]),
+          ("EFL", "r jones"))
+    check("an EFL club name that does not match is skipped, not guessed",
+          [s[0] for s in skipped], ["Nowhere Rovers"])
+    check("and it does not abort the run", unresolved, [])
+
+    during = dt.datetime(2026, 11, 14, 13, 0, tzinfo=rws.UK)
+    rows, started, _, _ = rws.plan_rows(fd, efl, known, appointed, during)
+    check("an EFL fixture that has kicked off is not forecast",
+          ("2026-11-14", "Salford", "Northampton") in started
+          and not any(r["home"] == "Salford" for r in rows), True)
+
+
 def main() -> int:
     test_kicked_off()
     test_refresh_keeps_played_rows()
     test_started_today_not_rewritten()
     test_auto_week()
+    test_efl_backup()
     print("\n" + "-" * 62)
     print(f"{PASS}/{PASS + FAIL} checks passed")
     return 1 if FAIL else 0

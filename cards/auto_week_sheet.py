@@ -22,8 +22,17 @@ WHEN IT DOES NOTHING, IT SAYS WHY
 
 - The workbook is open in Excel. Excel would overwrite the new sheet the next
   time you saved, or this would overwrite what you had typed, so it waits.
-- football-data lists no upcoming fixtures for the week yet. It adds them a
-  few days ahead, and the next run picks them up.
+- Neither football-data nor the EFL's latest referee appointments list an
+  upcoming fixture for the week yet. football-data adds them a few days ahead,
+  and the next run picks them up.
+
+THE BACKUP
+
+football-data's fixtures file is the main list, but it can lag: on 13 November
+2026 it was a week old while 15 League One and Two matches were a day away.
+The EFL's appointments article lists those divisions' fixtures with kick-off
+times and referees, so run_week_sheet.py takes any match football-data has not
+listed from there. The Premier League has no such backup.
 """
 
 from __future__ import annotations
@@ -43,7 +52,8 @@ import run_week_sheet as rws
 
 # run_week_sheet.py output worth repeating in the job's log
 KEEP = ("have a referee", "already kicked off", "wrote sheet", "predicted now",
-        "REFUSING", "ABORTING", "nothing left", "no playable", "dry run")
+        "REFUSING", "ABORTING", "nothing left", "no playable", "dry run",
+        "from the EFL", "EFL fixture(s) skipped", "football-data unreachable")
 
 
 def week_window(day: dt.date) -> tuple[dt.date, dt.date]:
@@ -82,16 +92,23 @@ def main() -> int:
         fixtures, _ = rws.collect_fixtures(start, end)
     except Exception as e:
         say(f"could not read football-data's fixtures ({type(e).__name__}) "
-            "-- will try again next run")
-        return 0
-    upcoming = [f for f in fixtures if not rws.kicked_off(f[1], f[5], now)]
+            "-- using the EFL's referee appointments only")
+        fixtures = []
+    # The backup: the EFL's appointments list Championship, League One and
+    # League Two fixtures before football-data sometimes does.
+    efl = rws.efl_fixtures(start, end)
+    up_fd = [f for f in fixtures if not rws.kicked_off(f[1], f[5], now)]
+    up_efl = [f for f in efl if not rws.kicked_off(f[1], f[5], now)]
+    upcoming = up_fd + up_efl
     if not upcoming:
-        started = len(fixtures) - len(upcoming)
+        started = len(fixtures) + len(efl)
         say(f"no upcoming fixtures listed for '{sheet}' yet"
             + (f" ({started} listed have already kicked off)" if started else ""))
         return 0
 
-    say(f"{len(upcoming)} upcoming fixtures -> '{sheet}'")
+    # the two lists can hold the same match; run_week_sheet counts it once
+    say(f"upcoming fixtures for '{sheet}': {len(up_fd)} from football-data, "
+        f"{len(up_efl)} in the EFL's referee appointments")
     cmd = [sys.executable, os.path.join(HERE, "run_week_sheet.py"),
            "--file", a.file, "--sheet", sheet,
            "--from", start.isoformat(), "--to", end.isoformat()]
